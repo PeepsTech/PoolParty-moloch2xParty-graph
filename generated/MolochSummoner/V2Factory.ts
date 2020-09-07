@@ -15,72 +15,75 @@ import {
   CallResult
 } from "@graphprotocol/graph-ts";
 
-export class Summoned extends EthereumEvent {
-  get params(): Summoned__Params {
-    return new Summoned__Params(this);
+export class SummonMoloch extends EthereumEvent {
+  get params(): SummonMoloch__Params {
+    return new SummonMoloch__Params(this);
   }
 }
 
-export class Summoned__Params {
-  _event: Summoned;
+export class SummonMoloch__Params {
+  _event: SummonMoloch;
 
-  constructor(event: Summoned) {
+  constructor(event: SummonMoloch) {
     this._event = event;
   }
 
-  get moloch(): Address {
+  get baal(): Address {
     return this._event.parameters[0].value.toAddress();
+  }
+
+  get depositToken(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get wrapperToken(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get summoner(): Array<Address> {
+    return this._event.parameters[3].value.toAddressArray();
+  }
+
+  get summonerShares(): Array<BigInt> {
+    return this._event.parameters[4].value.toBigIntArray();
+  }
+
+  get summoningDeposit(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
+  }
+
+  get proposalDeposit(): BigInt {
+    return this._event.parameters[6].value.toBigInt();
+  }
+
+  get processingReward(): BigInt {
+    return this._event.parameters[7].value.toBigInt();
+  }
+
+  get periodDuration(): BigInt {
+    return this._event.parameters[8].value.toBigInt();
+  }
+
+  get votingPeriodLength(): BigInt {
+    return this._event.parameters[9].value.toBigInt();
+  }
+
+  get gracePeriodLength(): BigInt {
+    return this._event.parameters[10].value.toBigInt();
+  }
+
+  get dilutionBound(): BigInt {
+    return this._event.parameters[11].value.toBigInt();
+  }
+
+  get summoningTime(): BigInt {
+    return this._event.parameters[12].value.toBigInt();
   }
 }
 
 export class V2Factory extends SmartContract {
   static bind(address: Address): V2Factory {
     return new V2Factory("V2Factory", address);
-  }
-
-  minionSummoner(): Address {
-    let result = super.call("minionSummoner", []);
-
-    return result[0].toAddress();
-  }
-
-  try_minionSummoner(): CallResult<Address> {
-    let result = super.tryCall("minionSummoner", []);
-    if (result.reverted) {
-      return new CallResult();
-    }
-    let value = result.value;
-    return CallResult.fromValue(value[0].toAddress());
-  }
-}
-
-export class ConstructorCall extends EthereumCall {
-  get inputs(): ConstructorCall__Inputs {
-    return new ConstructorCall__Inputs(this);
-  }
-
-  get outputs(): ConstructorCall__Outputs {
-    return new ConstructorCall__Outputs(this);
-  }
-}
-
-export class ConstructorCall__Inputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-
-  get _minionSummoner(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class ConstructorCall__Outputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
   }
 }
 
@@ -101,23 +104,23 @@ export class SummonMolochCall__Inputs {
     this._call = call;
   }
 
-  get _summoners(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
+  get _depositToken(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
-  get _approvedTokens(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
+  get _wrapperToken(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 
-  get _periodDuration(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+  get _summoner(): Array<Address> {
+    return this._call.inputValues[2].value.toAddressArray();
   }
 
-  get _votingPeriodLength(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
+  get _summonerShares(): Array<BigInt> {
+    return this._call.inputValues[3].value.toBigIntArray();
   }
 
-  get _gracePeriodLength(): BigInt {
+  get _summonerDeposit(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
   }
 
@@ -125,24 +128,24 @@ export class SummonMolochCall__Inputs {
     return this._call.inputValues[5].value.toBigInt();
   }
 
-  get _dilutionBound(): BigInt {
+  get _processingReward(): BigInt {
     return this._call.inputValues[6].value.toBigInt();
   }
 
-  get _processingReward(): BigInt {
+  get _periodDuration(): BigInt {
     return this._call.inputValues[7].value.toBigInt();
   }
 
-  get _summoningRate(): BigInt {
+  get _votingPeriodLength(): BigInt {
     return this._call.inputValues[8].value.toBigInt();
   }
 
-  get _summoningTermination(): BigInt {
+  get _gracePeriodLength(): BigInt {
     return this._call.inputValues[9].value.toBigInt();
   }
 
-  get _manifesto(): Bytes {
-    return this._call.inputValues[10].value.toBytes();
+  get _dilutionBound(): BigInt {
+    return this._call.inputValues[10].value.toBigInt();
   }
 }
 

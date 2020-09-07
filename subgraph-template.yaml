@@ -5,10 +5,12 @@ dataSources:
   - kind: ethereum/contract
     name: V2Factory
     network: rinkeby
+    #network: mainnet 
     source:
-      address: "" #rinkeby address 
+     address: "0x04FDd68b9bd3ADcD15c2dF86a855438b43A76c10" # rinkeby
+     #address: "0x40C90ec89dd4C814E91594d7AA02E9c70fFE4DF1" # mainnet 
       abi: V2Factory
-      startBlock: 6737981
+      startBlock: 6006595
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -23,13 +25,14 @@ dataSources:
         - name: Erc20Bytes32
           file: ./abis/Erc20Bytes32.json
       eventHandlers:
-        - event: Started(indexed address)
-          handler: handleStarted
+        - event: SummonMoloch(indexed address,address,address,address[],uint256[],uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleSummoned
       file: ./src/factory-mapping.ts 
 templates:
   - kind: ethereum/contract
     name: MolochV2Template
-    network: rinkeby # change to mainnet for that deploy
+    network: rinkeby
+    #network: mainnet
     source:
       abi: V2Moloch
     mapping:
