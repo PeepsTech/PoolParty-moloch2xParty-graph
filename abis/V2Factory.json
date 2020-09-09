@@ -1,56 +1,106 @@
 [
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_minionSummoner",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "moloch",
+				"name": "party",
 				"type": "address"
-			}
-		],
-		"name": "Summoned",
-		"type": "event"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "minionSummoner",
-		"outputs": [
+			},
 			{
-				"internalType": "contract ISummonMinion",
-				"name": "",
+				"indexed": false,
+				"internalType": "address[]",
+				"name": "_founders",
+				"type": "address[]"
+			},
+			{
+				"indexed": false,
+				"internalType": "address[]",
+				"name": "_approvedTokens",
+				"type": "address[]"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "_daoFees",
 				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_periodDuration",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_votingPeriodLength",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_gracePeriodLength",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_proposalDepositReward",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_depositRate",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_partyGoal",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "_name",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "_desc",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "summoningTime",
+				"type": "uint256"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
+		"name": "PartyStarted",
+		"type": "event"
 	},
 	{
 		"constant": false,
 		"inputs": [
 			{
 				"internalType": "address[]",
-				"name": "_summoners",
+				"name": "_founders",
 				"type": "address[]"
 			},
 			{
 				"internalType": "address[]",
 				"name": "_approvedTokens",
 				"type": "address[]"
+			},
+			{
+				"internalType": "address",
+				"name": "_daoFees",
+				"type": "address"
 			},
 			{
 				"internalType": "uint256",
@@ -69,36 +119,31 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "_proposalDeposit",
+				"name": "_proposalDepositReward",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "_dilutionBound",
+				"name": "_depositRate",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "_processingReward",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_summoningRate",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_summoningTermination",
+				"name": "_partyGoal",
 				"type": "uint256"
 			},
 			{
 				"internalType": "bytes32",
-				"name": "_manifesto",
+				"name": "_name",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_desc",
 				"type": "bytes32"
 			}
 		],
-		"name": "summonMoloch",
+		"name": "startParty",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",

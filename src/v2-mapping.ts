@@ -1,14 +1,11 @@
 import { BigInt, log, Address, Bytes } from "@graphprotocol/graph-ts";
 import {
-  SummonComplete,
   AmendGovernance,
   MakeDeposit,
-  MakePayment,
   SubmitProposal,
   SubmitVote,
   ProcessProposal,
-  UpdateDelegateKey,
-  ProposalIndex,
+  SponsorProposal,
   ProcessGuildKickProposal,
   Ragequit,
   CancelProposal,
@@ -17,6 +14,7 @@ import {
 } from "../generated/templates/MolochTemplate/V2Moloch";
 import { Erc20 } from "../generated/templates/MolochTemplate/Erc20";
 import { Erc20Bytes32 } from "../generated/templates/MolochTemplate/Erc20Bytes32";
+import { PartyStarted } from "../generated/MolochSummoner/V2Factory";
 
 import {
   Moloch,
@@ -32,6 +30,7 @@ import {
   addRageQuitBadge,
   addJailedCountBadge,
   addProposalSubmissionBadge,
+  addProposalSponsorBadge,
   addMembershipBadge,
   addProposalProcessorBadge,
 } from "./badges";
@@ -208,96 +207,48 @@ export function createAndApproveToken(molochId: string, token: Bytes): string {
 // used to create multiple summoners at time of summoning
 export function createAndAddSummoner(
   molochId: string,
-  summoner: Bytes,
-  tokens: Address[],
-  event: SummonComplete
+  summoner: Address,
+  _approvedTokens: Address[],
+  event: PartyStarted,
 ): string {
-  let moloch = Moloch.load(event.address.toHex());
 
   let memberId = molochId.concat("-member-").concat(summoner.toHex());
-  let newMember = new Member(memberId);
+  log.info('My MolochId is: {}', [molochId])
+  let member = new Member(memberId);
+  log.info('My memberId is: {}', [memberId])
+  
 
-  newMember.moloch = molochId;
-  newMember.createdAt = event.block.timestamp.toString();
-  newMember.molochAddress = event.address;
-  newMember.memberAddress = summoner;
-  newMember.delegateKey = summoner;
-  newMember.shares = BigInt.fromI32(1);
-  newMember.loot = BigInt.fromI32(0);
-  newMember.tokenTribute = BigInt.fromI32(0);
-  newMember.didRagequit = false;
-  newMember.isSummoner = true;
-  newMember.proposedToKick = false;
-  newMember.kicked = false;
+  member.moloch = molochId;
+  log.info('My moloch is: {}', [molochId])
+  member.createdAt = event.block.timestamp.toString();
+  member.molochAddress = event.params.party;
+  member.memberAddress = summoner;
+  member.shares = BigInt.fromI32(0);
+  member.loot = BigInt.fromI32(0);
+  member.tokenTribute = BigInt.fromI32(0);
+  member.didRagequit = false;
+  member.exists = true;
+  member.proposedToKick = false;
+  member.kicked = false;
 
-  newMember.save();
-
-  addMembershipBadge(summoner);
-  moloch.totalShares = moloch.totalShares.plus(BigInt.fromI32(0));
-
-  //Set summoner summoner balances for approved tokens to zero
+    //Set summoner summoner balances for approved tokens to zero
+  let tokens = event.params._approvedTokens;
   for (let i = 0; i < tokens.length; i++) {
     let token = tokens[i];
     let tokenId = molochId.concat("-token-").concat(token.toHex());
-    createMemberTokenBalance(molochId, summoner, tokenId, BigInt.fromI32(0));
-  }
-
-  return memberId;
-}
-
-export function handleSummonComplete(event: SummonComplete): void {
-  let moloch = Moloch.load(event.address.toHex());
-  let molochId = event.address.toHexString();
-
-  let tokens = event.params.tokens;
-  let approvedTokens: string[] = [];
-  let escrowTokenBalance: string[] = [];
-  let guildTokenBalance: string[] = [];
-
-  for (let i = 0; i < tokens.length; i++) {
-    let token = tokens[i];
-    approvedTokens.push(createAndApproveToken(molochId, token));
-    escrowTokenBalance.push(createEscrowTokenBalance(molochId, token));
-    guildTokenBalance.push(createGuildTokenBalance(molochId, token));
-  }
-
-  let eventSummoners = event.params.summoners;
-  let summoners: string[] = [];
-
-  for (let i = 0; i < eventSummoners.length; i++) {
-    let summoner = eventSummoners[i];
-    summoners.push(
-      createAndAddSummoner(molochId, summoner as Bytes, tokens, event)
+    createMemberTokenBalance(
+      molochId,
+      summoner,
+      tokenId,
+      BigInt.fromI32(0)
     );
   }
+  
+  member.save();
 
-  moloch.summoners = summoners;
-  moloch.summoningTime = event.params.summoningTime;
-  moloch.version = "2xParty";
-  moloch.periodDuration = event.params.periodDuration;
-  moloch.votingPeriodLength = event.params.votingPeriodLength;
-  moloch.gracePeriodLength = event.params.gracePeriodLength;
-  moloch.proposalDeposit = event.params.proposalDeposit;
-  moloch.dilutionBound = event.params.dilutionBound;
-  moloch.processingReward = event.params.processingReward;
-  moloch.depositToken = approvedTokens[0];
-  moloch.approvedTokens = approvedTokens;
-  moloch.guildTokenBalance = guildTokenBalance;
-  moloch.escrowTokenBalance = escrowTokenBalance;
-  moloch.totalShares = BigInt.fromI32(0);
-  moloch.summoningRate = event.params.summoningRate;
-  moloch.summoningTermination = event.params.summoningTermination;
-  moloch.manifesto = event.params.manifesto;
-  moloch.totalLoot = BigInt.fromI32(0);
-  moloch.proposalCount = BigInt.fromI32(0);
-  moloch.proposalQueueCount = BigInt.fromI32(0);
-  moloch.proposedToJoin = new Array<string>();
-  moloch.proposedToWhitelist = new Array<string>();
-  moloch.proposedToKick = new Array<string>();
-  moloch.proposedToFund = new Array<string>();
-  moloch.proposedToTrade = new Array<string>();
+  addMembershipBadge(summoner);
 
-  moloch.save();
+  return memberId;
 }
 
 export function handleMakeDeposit(event: MakeDeposit): void {
@@ -321,41 +272,23 @@ export function handleMakeDeposit(event: MakeDeposit): void {
   addToBalance(molochId, GUILD, tributeTokenId, member.tokenTribute);
 }
 
-export function handleMakePayment(event: MakePayment): void {
-  let molochId = event.address.toHexString();
-  let payor = Payor.load(
-    molochId.concat("-payor-").concat(event.params.sender.toHex())
-  );
-  //load moloch to get depositToken
-  let moloch = Moloch.load(molochId);
-
-  payor.payorAddress = event.params.sender.toHex();
-  payor.paymenToken = event.params.paymentToken.toHex();
-  payor.payment = event.params.payment; 
-  payor.payments = payor.payments.plus(event.params.payment);
-  payor.save();
-
-
-  //GUILD w/ tribute
-  addToBalance(molochId, GUILD, payor.paymentToken, payor.payment);
-}
 
 export function handleAmendGovernance(event: AmendGovernance): void {
   let molochId = event.address.toHexString();
   let moloch = Moloch.load(molochId);
 
-  moloch.newToken = event.params.newToken.toHexString();
-  moloch.minion = event.params.minion;
+  let newToken = event.params.newToken;
   moloch.depositRate = event.params.depositRate;
-  moloch.manifesto = event.params.manifesto;
+  moloch.partyGoal = event.params.partyGoal;
 
-  createAndApproveToken(molochId, moloch.newToken);
+  createAndApproveToken(molochId, newToken);
 
   moloch.save();
 }
 
 export function handleSubmitProposal(event: SubmitProposal): void {
   let molochId = event.address.toHexString();
+  let moloch = Moloch.load(molochId);
 
   let newProposalId = molochId
     .concat("-proposal-")
@@ -387,7 +320,6 @@ export function handleSubmitProposal(event: SubmitProposal): void {
   proposal.createdAt = event.block.timestamp.toString();
   proposal.member = memberId;
   proposal.memberAddress = event.params.memberAddress;
-  proposal.delegateKey = event.params.delegateKey;
   proposal.applicant = event.params.applicant;
   proposal.proposer = event.transaction.from;
   proposal.sponsor = Address.fromString(ZERO_ADDRESS);
@@ -400,12 +332,13 @@ export function handleSubmitProposal(event: SubmitProposal): void {
   proposal.startingPeriod = BigInt.fromI32(0);
   proposal.yesVotes = BigInt.fromI32(0);
   proposal.noVotes = BigInt.fromI32(0);
-  proposal.processed = flags[0];
-  proposal.didPass = flags[1];
-  proposal.cancelled = flags[2];
-  proposal.guildkick = flags[3];
-  proposal.spending = flags[4];
-  proposal.member = flags[5];
+  proposal.sponsored = flags[0]
+  proposal.processed = flags[1];
+  proposal.didPass = flags[2];
+  proposal.cancelled = flags[3];
+  proposal.guildkick = flags[4];
+  proposal.spending = flags[5];
+  proposal.addMember = flags[6];
   proposal.newMember = newMember;
   proposal.trade = trade;
   proposal.yesShares = BigInt.fromI32(0);
@@ -414,10 +347,60 @@ export function handleSubmitProposal(event: SubmitProposal): void {
   proposal.details = event.params.details;
 
   //take deposit and move to ESCROW
-  addToBalance(molochId, ESCROW, moloch.depositToken, moloch.proposalDeposit);
+  addToBalance(molochId, ESCROW, moloch.depositToken, moloch.proposalDepositReward);
+
+  proposal.save();
+
+  addProposalSubmissionBadge(event.transaction.from, event.transaction);
+
+  // collect tribute from proposer and store it in Moloch ESCROW until the proposal is processed
+  if (event.params.tributeOffered > BigInt.fromI32(0)) {
+    let tokenId = molochId
+      .concat("-token-")
+      .concat(event.params.tributeToken.toHex());
+    addToBalance(molochId, ESCROW, tokenId, event.params.tributeOffered);
+  }
+}
+
+export function handleSponsorProposal(event: SponsorProposal): void {
+  let molochId = event.address.toHexString();
+  let memberId = molochId
+    .concat("-member-")
+    .concat(event.params.memberAddress.toHex());
+  let sponsorProposalId = molochId
+    .concat("-proposal-")
+    .concat(event.params.proposalId.toString());
+
+  log.info("***** sponsorProposal {}", [sponsorProposalId]);
+
+  let moloch = Moloch.load(molochId);
+
+  let proposal = Proposal.load(sponsorProposalId);
+
+  if (proposal.newMember) {
+    moloch.proposedToJoin = moloch.proposedToJoin.concat([sponsorProposalId]);
+    moloch.save();
+  } else if (proposal.guildkick) {
+    moloch.proposedToKick = moloch.proposedToKick.concat([sponsorProposalId]);
+    let member = Member.load(memberId);
+    member.proposedToKick = true;
+    member.save();
+    moloch.save();
+  } else if (proposal.trade) {
+    moloch.proposedToTrade = moloch.proposedToTrade.concat([sponsorProposalId]);
+    moloch.save();
+  } else {
+    moloch.proposedToFund = moloch.proposedToFund.concat([sponsorProposalId]);
+    moloch.save();
+  }
+
+  proposal.proposalIndex = event.params.proposalIndex;
+  proposal.sponsor = event.params.memberAddress;
+  proposal.sponsoredAt = event.block.timestamp.toString();
+  proposal.startingPeriod = event.params.startingPeriod;
+  proposal.sponsored = true;
 
   // calculate times
-  let moloch = Moloch.load(molochId);
   let votingPeriodStarts = moloch.summoningTime.plus(
     proposal.startingPeriod.times(moloch.periodDuration)
   );
@@ -434,15 +417,7 @@ export function handleSubmitProposal(event: SubmitProposal): void {
 
   proposal.save();
 
-  addProposalSubmissionBadge(event.transaction.from, event.transaction);
-
-  // collect tribute from proposer and store it in Moloch ESCROW until the proposal is processed
-  if (event.params.tributeOffered > BigInt.fromI32(0)) {
-    let tokenId = molochId
-      .concat("-token-")
-      .concat(event.params.tributeToken.toHex());
-    addToBalance(molochId, ESCROW, tokenId, event.params.tributeOffered);
-  }
+  addProposalSponsorBadge(event.params.memberAddress, event.transaction);
 }
 
 export function handleSubmitVote(event: SubmitVote): void {
@@ -507,44 +482,6 @@ export function handleSubmitVote(event: SubmitVote): void {
   }
 }
 
-export function handleProposalIndex(event: ProposalIndex): void {
-  let molochId = event.address.toHexString();
-
-  let proposalIndexId = molochId
-    .concat("-proposal-")
-    .concat(event.params.proposalId.toString());
-
-  let moloch = Moloch.load(molochId);
-
-  // collect proposal deposit from sponsor and store it in the Moloch until the proposal is processed
-  
-
-  let proposal = Proposal.load(proposalIndexId);
-
-  if (proposal.newMember) {
-    moloch.proposedToJoin = moloch.proposedToJoin.concat([proposalIndexId]);
-    moloch.save();
-  } else if (proposal.guildkick) {
-    moloch.proposedToKick = moloch.proposedToKick.concat([proposalIndexId]);
-
-    let member = Member.load(memberId);
-    member.proposedToKick = true;
-    member.save();
-    moloch.save();
-  } else if (proposal.trade) {
-    moloch.proposedToTrade = moloch.proposedToTrade.concat([proposalIndexId]);
-    moloch.save();
-  } else {
-    moloch.proposedToFund = moloch.proposedToFund.concat([proposalIndexId]);
-    moloch.save();
-  }
-
-  proposal.proposalIndex = event.params.proposalIndex;
-  proposal.sponsoredAt = event.block.timestamp.toString();
-  proposal.startingPeriod = event.params.startingPeriod;
-
-  proposal.save();
-}
 
 export function handleProcessProposal(event: ProcessProposal): void {
   let molochId = event.address.toHexString();
@@ -589,7 +526,6 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.createdAt = event.block.timestamp.toString();
       newMember.molochAddress = event.address;
       newMember.memberAddress = proposal.applicant;
-      newMember.delegateKey = proposal.applicant;
       newMember.shares = proposal.sharesRequested;
       newMember.loot = proposal.lootRequested;
 
@@ -603,7 +539,6 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
       newMember.kicked = false;
-      newMember.isSummoner = false;
 
       newMember.save();
 
@@ -648,7 +583,6 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.createdAt = event.block.timestamp.toString();
       newMember.molochAddress = event.address;
       newMember.memberAddress = proposal.applicant;
-      newMember.delegateKey = proposal.applicant;
       newMember.shares = BigInt.fromI32(0);
       newMember.loot = BigInt.fromI32(0);
       newMember.exists = false;
@@ -702,14 +636,14 @@ export function handleProcessProposal(event: ProcessProposal): void {
     ESCROW,
     event.transaction.from,
     moloch.depositToken,
-    moloch.processingReward
+    moloch.proposalDepositReward
   );
   internalTransfer(
     molochId,
     ESCROW,
-    proposal.sponsor,
+    proposal.proposer,
     moloch.depositToken,
-    moloch.proposalDeposit.minus(moloch.processingReward)
+    moloch.proposalDepositReward.minus(moloch.proposalDepositReward)
   );
 
   moloch.save();
@@ -741,7 +675,7 @@ export function handleProcessGuildKickProposal(
         .concat(proposal.applicant.toHexString());
       let member = Member.load(memberId);
       let newLoot = member.shares;
-      member.jailed = processProposalId;
+      member.jailed = true;
       member.kicked = true;
       member.shares = BigInt.fromI32(0);
       member.loot = member.loot.plus(newLoot);
@@ -774,14 +708,14 @@ export function handleProcessGuildKickProposal(
     ESCROW,
     event.transaction.from,
     moloch.depositToken,
-    moloch.processingReward
+    moloch.proposalDepositReward
   );
   internalTransfer(
     molochId,
     ESCROW,
-    proposal.sponsor,
+    proposal.proposer,
     moloch.depositToken,
-    moloch.proposalDeposit.minus(moloch.processingReward)
+    moloch.proposalDepositReward.minus(moloch.proposalDepositReward)
   );
 
   moloch.save();
@@ -833,6 +767,8 @@ export function handleRagequit(event: Ragequit): void {
       token,
       amountToRageQuit
     );
+
+    //add second internal transfer to adjust for idleTokens
   }
 
   addRageQuitBadge(event.params.memberAddress, event.transaction);
@@ -878,7 +814,6 @@ export function handleCancelProposal(event: CancelProposal): void {
       newMember.createdAt = event.block.timestamp.toString();
       newMember.molochAddress = event.address;
       newMember.memberAddress = proposal.applicant;
-      newMember.delegateKey = proposal.applicant;
       newMember.shares = BigInt.fromI32(0);
       newMember.loot = proposal.lootRequested;
       newMember.exists = false;
@@ -907,15 +842,10 @@ export function handleCancelProposal(event: CancelProposal): void {
   proposal.save();
 }
 
-export function handleUpdateDelegateKey(event: UpdateDelegateKey): void {
-  let molochId = event.address.toHexString();
-  let memberId = molochId
-    .concat("-member-")
-    .concat(event.params.memberAddress.toHex());
-  let member = Member.load(memberId);
-  member.delegateKey = event.params.newDelegateKey;
-  member.save();
-}
+// do a handleWithdrawEarnings
+
+// do a depositToIdle
+
 
 export function handleWithdraw(event: Withdraw): void {
   // let memberAddress = event.params.memberAddress;
@@ -929,16 +859,6 @@ export function handleWithdraw(event: Withdraw): void {
       event.params.memberAddress.toHex(),
     ]
   );
-
-  // if (
-  //   event.transaction.hash.toHexString() ==
-  //   "0x66372e97bcbcfae9810165f6a49479cacc04fd6a0f8054a9873cd90f766385e7"
-  // ) {
-  //   // NOTE: Used event.transaction.from instead of event.params.memberAddress
-  //   // due to event on MCV where those didn't match and caused subtractFromBalance to fail
-  //   log.info("FIND ME MCV bad tx", []);
-  //   memberAddress = event.transaction.from;
-  // }
 
   let molochId = event.address.toHexString();
 
