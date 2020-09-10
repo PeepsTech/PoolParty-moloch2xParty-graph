@@ -85,6 +85,40 @@ export class V2Factory extends SmartContract {
   static bind(address: Address): V2Factory {
     return new V2Factory("V2Factory", address);
   }
+
+  parties(param0: BigInt): Address {
+    let result = super.call("parties", [
+      EthereumValue.fromUnsignedBigInt(param0)
+    ]);
+
+    return result[0].toAddress();
+  }
+
+  try_parties(param0: BigInt): CallResult<Address> {
+    let result = super.tryCall("parties", [
+      EthereumValue.fromUnsignedBigInt(param0)
+    ]);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toAddress());
+  }
+
+  party(): Address {
+    let result = super.call("party", []);
+
+    return result[0].toAddress();
+  }
+
+  try_party(): CallResult<Address> {
+    let result = super.tryCall("party", []);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toAddress());
+  }
 }
 
 export class StartPartyCall extends EthereumCall {

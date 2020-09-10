@@ -19,6 +19,7 @@ type Moloch @entity {
   depositRate: BigInt!
   partyGoal: BigInt!
   totalDeposits: BigInt
+  goalHit: Boolean
   idleAvgCost: BigInt
   daoFee: String
   tokens: [Token!] @derivedFrom(field: "moloch")
@@ -36,6 +37,7 @@ type Moloch @entity {
   proposedToKick: [Proposal!]
   proposedToFund: [Proposal!]
   proposedToTrade: [Proposal!]
+  proposedToAmend: [Proposal!]
 }
 
 type TokenBalance @entity {
@@ -67,8 +69,8 @@ type Member @entity {
   memberAddress: Bytes!
   shares: BigInt!
   loot: BigInt
-  iTokenAmts: BigInt
-  iTokenRedemptions: BigInt
+  iTokenAmts: BigInt!
+  iTokenRedemptions: BigInt!
   exists: Boolean!
   highestIndexYesVote: Proposal
   tokenTribute: BigInt!
@@ -125,6 +127,7 @@ type Proposal @entity {
   newMember: Boolean
   spending: Boolean
   trade: Boolean
+  governance: Boolean
   details: Bytes!
   data: Bytes
   maxTotalSharesAndLootAtYesVote: BigInt

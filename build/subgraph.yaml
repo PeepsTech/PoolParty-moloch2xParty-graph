@@ -54,12 +54,13 @@ templates:
         - name: Erc20Bytes32
           file: MolochTemplate/abis/Erc20Bytes32.json
       eventHandlers:
-        - event: MakeDeposit(indexed address,indexed uint256,indexed uint256,uint256,uint8)
+        - event: MakeDeposit(indexed address,uint256,uint256,indexed uint256,uint256,uint8)
           handler: handleDeposit
-        - event: AmendGovernance(indexed address,indexed address,uint256,uint256)
+        - event: ProcessAmendGovernance(indexed uint256,indexed
+            uint256,bool,address,address,uint256,uint256)
           handler: handleAmendGovernance
         - event: SubmitProposal(indexed
-            address,uint256,uint256,uint256,address,uint256,address,bytes32,bool[7],uint256,indexed
+            address,uint256,uint256,uint256,address,uint256,address,bytes32,bool[8],uint256,indexed
             address,indexed address)
           handler: handleSubmitProposal
         - event: SponsorProposal(indexed address,indexed address,uint256,uint256,uint256)
@@ -67,6 +68,8 @@ templates:
         - event: SubmitVote(uint256,indexed uint256,indexed address,indexed address,uint8)
           handler: handleSubmitVote
         - event: ProcessProposal(indexed uint256,indexed uint256,bool)
+          handler: handleProcessProposal
+        - event: ProcessIdleProposal(indexed uint256,indexed uint256,uint256,uint256)
           handler: handleProcessProposal
         - event: ProcessGuildKickProposal(indexed uint256,indexed uint256,bool)
           handler: handleProcessGuildKickProposal

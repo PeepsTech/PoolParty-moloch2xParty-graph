@@ -15,36 +15,6 @@ import {
   CallResult
 } from "@graphprotocol/graph-ts";
 
-export class AmendGovernance extends EthereumEvent {
-  get params(): AmendGovernance__Params {
-    return new AmendGovernance__Params(this);
-  }
-}
-
-export class AmendGovernance__Params {
-  _event: AmendGovernance;
-
-  constructor(event: AmendGovernance) {
-    this._event = event;
-  }
-
-  get newToken(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get newIdle(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get depositRate(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-
-  get partyGoal(): BigInt {
-    return this._event.parameters[3].value.toBigInt();
-  }
-}
-
 export class CancelProposal extends EthereumEvent {
   get params(): CancelProposal__Params {
     return new CancelProposal__Params(this);
@@ -88,16 +58,62 @@ export class MakeDeposit__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get shares(): BigInt {
+  get mintedTokens(): BigInt {
     return this._event.parameters[2].value.toBigInt();
   }
 
-  get idleAvgCost(): BigInt {
+  get shares(): BigInt {
     return this._event.parameters[3].value.toBigInt();
   }
 
-  get goal(): i32 {
-    return this._event.parameters[4].value.toI32();
+  get idleAvgCost(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get goalHit(): i32 {
+    return this._event.parameters[5].value.toI32();
+  }
+}
+
+export class ProcessAmendGovernance extends EthereumEvent {
+  get params(): ProcessAmendGovernance__Params {
+    return new ProcessAmendGovernance__Params(this);
+  }
+}
+
+export class ProcessAmendGovernance__Params {
+  _event: ProcessAmendGovernance;
+
+  constructor(event: ProcessAmendGovernance) {
+    this._event = event;
+  }
+
+  get proposalIndex(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get proposalId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get didPass(): boolean {
+    return this._event.parameters[2].value.toBoolean();
+  }
+
+  get newToken(): Address {
+    return this._event.parameters[3].value.toAddress();
+  }
+
+  get newIdle(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+
+  get newPartyGoal(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
+  }
+
+  get newDepositRate(): BigInt {
+    return this._event.parameters[6].value.toBigInt();
   }
 }
 
@@ -124,6 +140,36 @@ export class ProcessGuildKickProposal__Params {
 
   get didPass(): boolean {
     return this._event.parameters[2].value.toBoolean();
+  }
+}
+
+export class ProcessIdleProposal extends EthereumEvent {
+  get params(): ProcessIdleProposal__Params {
+    return new ProcessIdleProposal__Params(this);
+  }
+}
+
+export class ProcessIdleProposal__Params {
+  _event: ProcessIdleProposal;
+
+  constructor(event: ProcessIdleProposal) {
+    this._event = event;
+  }
+
+  get proposalIndex(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get proposalId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get idleRedemptionAmt(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get depositTokenAmt(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
   }
 }
 
@@ -1432,48 +1478,6 @@ export class ConstructorCall__Outputs {
   }
 }
 
-export class AmendGovernanceCall extends EthereumCall {
-  get inputs(): AmendGovernanceCall__Inputs {
-    return new AmendGovernanceCall__Inputs(this);
-  }
-
-  get outputs(): AmendGovernanceCall__Outputs {
-    return new AmendGovernanceCall__Outputs(this);
-  }
-}
-
-export class AmendGovernanceCall__Inputs {
-  _call: AmendGovernanceCall;
-
-  constructor(call: AmendGovernanceCall) {
-    this._call = call;
-  }
-
-  get _newToken(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _idleToken(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _partyGoal(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get _depositRate(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-}
-
-export class AmendGovernanceCall__Outputs {
-  _call: AmendGovernanceCall;
-
-  constructor(call: AmendGovernanceCall) {
-    this._call = call;
-  }
-}
-
 export class CancelProposalCall extends EthereumCall {
   get inputs(): CancelProposalCall__Inputs {
     return new CancelProposalCall__Inputs(this);
@@ -1594,6 +1598,36 @@ export class MakeDepositCall__Outputs {
   _call: MakeDepositCall;
 
   constructor(call: MakeDepositCall) {
+    this._call = call;
+  }
+}
+
+export class ProcessAmendGovernanceCall extends EthereumCall {
+  get inputs(): ProcessAmendGovernanceCall__Inputs {
+    return new ProcessAmendGovernanceCall__Inputs(this);
+  }
+
+  get outputs(): ProcessAmendGovernanceCall__Outputs {
+    return new ProcessAmendGovernanceCall__Outputs(this);
+  }
+}
+
+export class ProcessAmendGovernanceCall__Inputs {
+  _call: ProcessAmendGovernanceCall;
+
+  constructor(call: ProcessAmendGovernanceCall) {
+    this._call = call;
+  }
+
+  get proposalIndex(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class ProcessAmendGovernanceCall__Outputs {
+  _call: ProcessAmendGovernanceCall;
+
+  constructor(call: ProcessAmendGovernanceCall) {
     this._call = call;
   }
 }

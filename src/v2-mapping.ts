@@ -1,16 +1,18 @@
 import { BigInt, log, Address, Bytes } from "@graphprotocol/graph-ts";
 import {
-  AmendGovernance,
+  ProcessAmendGovernance,
   MakeDeposit,
   SubmitProposal,
   SubmitVote,
   ProcessProposal,
   SponsorProposal,
+  ProcessIdleProposal,
   ProcessGuildKickProposal,
   Ragequit,
   CancelProposal,
   Withdraw,
   TokensCollected,
+  WithdrawEarnings,
 } from "../generated/templates/MolochTemplate/V2Moloch";
 import { Erc20 } from "../generated/templates/MolochTemplate/Erc20";
 import { Erc20Bytes32 } from "../generated/templates/MolochTemplate/Erc20Bytes32";
@@ -226,6 +228,8 @@ export function createAndAddSummoner(
   member.shares = BigInt.fromI32(0);
   member.loot = BigInt.fromI32(0);
   member.tokenTribute = BigInt.fromI32(0);
+  member.iTokenAmts = BigInt.fromI32(0);
+  member.iTokenRedemptions = BigInt.fromI32(0);
   member.didRagequit = false;
   member.exists = true;
   member.proposedToKick = false;
@@ -256,35 +260,37 @@ export function handleMakeDeposit(event: MakeDeposit): void {
   let member = Member.load(
     molochId.concat("-member-").concat(event.params.memberAddress.toHex())
   );
-  //load moloch to get depositToken
+  //load moloch to get idleToken
   let moloch = Moloch.load(molochId);
 
-  let tributeTokenId = moloch.depositToken;
-
-  member.tokenTribute = event.params.tribute;
+  //update member token tribute, iToken balances, and shares
+  let idleTokenID = moloch.idleToken;
+  let tribute = event.params.tribute;
+  let mintedTokens = event.params.mintedTokens;
+  
+  member.tokenTribute = tribute;
+  member.iTokenAmts = member.iTokenAmts.plus(mintedTokens);
   member.shares = member.shares.plus(event.params.shares);
   member.save();
 
-  //update shares
+  //update moloch
+  let totalDeposits = moloch.totalDeposits;
+  let goalHit = event.params.goalHit;
+
   moloch.totalShares = moloch.totalShares.plus(event.params.shares);
+  moloch.idleAvgCost = event.params.idleAvgCost;
+  moloch.totalDeposits = totalDeposits.plus(tribute);
 
-  //GUILD w/ tribute
-  addToBalance(molochId, GUILD, tributeTokenId, member.tokenTribute);
-}
-
-
-export function handleAmendGovernance(event: AmendGovernance): void {
-  let molochId = event.address.toHexString();
-  let moloch = Moloch.load(molochId);
-
-  let newToken = event.params.newToken;
-  moloch.depositRate = event.params.depositRate;
-  moloch.partyGoal = event.params.partyGoal;
-
-  createAndApproveToken(molochId, newToken);
+  if(goalHit == 1){
+    moloch.goalHit = true;
+  }
 
   moloch.save();
+
+  //GUILD w/ tribute
+  addToBalance(molochId, GUILD, idleTokenID, mintedTokens);
 }
+
 
 export function handleSubmitProposal(event: SubmitProposal): void {
   let molochId = event.address.toHexString();
@@ -339,6 +345,7 @@ export function handleSubmitProposal(event: SubmitProposal): void {
   proposal.guildkick = flags[4];
   proposal.spending = flags[5];
   proposal.addMember = flags[6];
+  proposal.governance = flags[7];
   proposal.newMember = newMember;
   proposal.trade = trade;
   proposal.yesShares = BigInt.fromI32(0);
@@ -482,7 +489,6 @@ export function handleSubmitVote(event: SubmitVote): void {
   }
 }
 
-
 export function handleProcessProposal(event: ProcessProposal): void {
   let molochId = event.address.toHexString();
   let moloch = Moloch.load(molochId);
@@ -526,7 +532,14 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.createdAt = event.block.timestamp.toString();
       newMember.molochAddress = event.address;
       newMember.memberAddress = proposal.applicant;
-      newMember.shares = proposal.sharesRequested;
+
+      // Account for shares being captured by the MakeDeposit, if tribute is depositToken
+      if(proposal.tributeToken.toHex() == moloch.depositToken){
+        newMember.shares = BigInt.fromI32(0);
+      } else {
+        newMember.shares = proposal.sharesRequested;
+      }
+      
       newMember.loot = proposal.lootRequested;
 
       if (proposal.sharesRequested > BigInt.fromI32(0)) {
@@ -539,6 +552,8 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
       newMember.kicked = false;
+      newMember.iTokenAmts = BigInt.fromI32(0);
+      newMember.iTokenRedemptions = BigInt.fromI32(0);
 
       newMember.save();
 
@@ -554,22 +569,33 @@ export function handleProcessProposal(event: ProcessProposal): void {
     //NOTE: Add shares/loot do intake tribute from escrow, payout from guild bank
     moloch.totalShares = moloch.totalShares.plus(proposal.sharesRequested);
     moloch.totalLoot = moloch.totalLoot.plus(proposal.lootRequested);
-    internalTransfer(
-      molochId,
-      ESCROW,
-      GUILD,
-      tributeTokenId,
-      proposal.tributeOffered
-    );
-    //NOTE: check if user has a tokenBalance for that token if not then create one before sending
-    internalTransfer(
-      molochId,
-      GUILD,
-      proposal.applicant,
-      paymentTokenId,
-      proposal.paymentRequested
-    );
+    if(proposal.tributeToken.toHex() == moloch.depositToken){
+      subtractFromBalance(
+        molochId,
+        ESCROW,
+        tributeTokenId,
+        proposal.tributeOffered
+      );
+    } else {
+      internalTransfer(
+        molochId,
+        ESCROW,
+        GUILD,
+        tributeTokenId,
+        proposal.tributeOffered
+      );
+    }
 
+    //NOTE: check if user has a tokenBalance for that token if not then create one before sending
+    if(proposal.paymentToken.toHex() != moloch.depositToken) {
+      internalTransfer(
+        molochId,
+        GUILD,
+        proposal.applicant,
+        paymentTokenId,
+        proposal.paymentRequested
+      );
+    }
     //NOTE: PROPOSAL FAILED
   } else {
     proposal.didPass = false;
@@ -638,18 +664,130 @@ export function handleProcessProposal(event: ProcessProposal): void {
     moloch.depositToken,
     moloch.proposalDepositReward
   );
-  internalTransfer(
-    molochId,
-    ESCROW,
-    proposal.proposer,
-    moloch.depositToken,
-    moloch.proposalDepositReward.minus(moloch.proposalDepositReward)
-  );
-
+  
   moloch.save();
   proposal.save();
 }
 
+export function handleIdleProposal(event: ProcessIdleProposal): void {
+
+  let molochId = event.address.toHexString();
+  let moloch = Moloch.load(molochId);
+
+  let processProposalId = molochId
+    .concat("-proposal-")
+    .concat(event.params.proposalId.toString());
+
+  let proposal = Proposal.load(processProposalId);
+  
+  let paymentTokenId = molochId
+  .concat("-proposal-")
+  .concat(proposal.paymentToken.toHex());
+
+  let depositTokenId = molochId
+  .concat("-proposal-")
+  .concat(moloch.depositToken);
+
+  subtractFromBalance(
+    molochId,
+    GUILD,
+    paymentTokenId,
+    event.params.idleRedemptionAmt
+  );
+  addToBalance(
+    molochId,
+    GUILD,
+    depositTokenId,
+    event.params.depositTokenAmt
+  );
+  internalTransfer(
+    molochId,
+    GUILD,
+    proposal.applicant,
+    depositTokenId,
+    event.params.depositTokenAmt
+  );
+}
+
+export function handleAmendGovernance(event: ProcessAmendGovernance): void {
+  let molochId = event.address.toHexString();
+  let moloch = Moloch.load(molochId);
+
+  let processProposalId = molochId
+    .concat("-proposal-")
+    .concat(event.params.proposalId.toString());
+  let proposal = Proposal.load(processProposalId);
+
+  addProposalProcessorBadge(event.transaction.from, event.transaction);
+
+  // Adds new token to tokenWhitelist
+  let newApprToken = proposal.tributeToken.toHex();
+  let newIdleToken = proposal.paymentToken.toHex();
+
+
+  if (event.params.didPass) {
+    proposal.didPass = true;
+    //Update moloch governance
+    if (proposal.governance) {
+        moloch.partyGoal = proposal.tributeOffered;
+        moloch.depositRate = proposal.paymentRequested;
+
+        if(newIdleToken != ZERO_ADDRESS){
+          moloch.idleToken = newIdleToken
+        }
+        
+        if(newApprToken != ZERO_ADDRESS){
+  
+          let approvedTokens = moloch.approvedTokens;
+          approvedTokens.push(
+            createAndApproveToken(molochId, proposal.tributeToken)
+          );
+          moloch.approvedTokens = approvedTokens;
+      
+          let escrowTokens = moloch.escrowTokenBalance;
+          escrowTokens.push(
+            createEscrowTokenBalance(molochId, proposal.tributeToken)
+          );
+          moloch.escrowTokenBalance = escrowTokens;
+      
+          let guildTokens = moloch.guildTokenBalance;
+          guildTokens.push(
+            createGuildTokenBalance(molochId, proposal.tributeToken)
+          );
+          moloch.guildTokenBalance = guildTokens;
+        }
+
+      moloch.save();
+    }
+    //PROPOSAL FAILED
+  } else {
+    proposal.didPass = false;
+  }
+
+  //NOTE: can only process proposals in order, test shift array comprehension might have tp sprt first for this to work
+  moloch.proposedToAmend = moloch.proposedToAmend.filter(function(
+    value,
+    index,
+    arr
+  ) {
+    return index > 0;
+  });
+  proposal.processed = true;
+
+  //NOTE: issue processing reward and return deposit
+  //TODO: fix to not use from address, could be a delegate emit member kwy from event
+  internalTransfer(
+    molochId,
+    ESCROW,
+    event.transaction.from,
+    moloch.depositToken,
+    moloch.proposalDepositReward
+  );
+
+  proposal.save();
+  moloch.save();
+
+}
 
 export function handleProcessGuildKickProposal(
   event: ProcessGuildKickProposal
@@ -710,13 +848,6 @@ export function handleProcessGuildKickProposal(
     moloch.depositToken,
     moloch.proposalDepositReward
   );
-  internalTransfer(
-    molochId,
-    ESCROW,
-    proposal.proposer,
-    moloch.depositToken,
-    moloch.proposalDepositReward.minus(moloch.proposalDepositReward)
-  );
 
   moloch.save();
   proposal.save();
@@ -735,6 +866,8 @@ export function handleRagequit(event: Ragequit): void {
     event.params.lootToBurn
   );
   let initialTotalSharesAndLoot = moloch.totalShares.plus(moloch.totalLoot);
+  
+  let idleToken = moloch.idleToken;
 
   member.shares = member.shares.minus(event.params.sharesToBurn);
   member.loot = member.loot.minus(event.params.lootToBurn);
@@ -767,6 +900,18 @@ export function handleRagequit(event: Ragequit): void {
       token,
       amountToRageQuit
     );
+    // adjusts for previous iToken redemptions
+    let iTokenRed = member.iTokenRedemptions;
+    if(iTokenRed > BigInt.fromI32(0)){
+      internalTransfer(
+        molochId,
+        member.memberAddress,
+        GUILD,
+        idleToken,
+        iTokenRed
+      );
+    }
+
 
     //add second internal transfer to adjust for idleTokens
   }
@@ -842,9 +987,59 @@ export function handleCancelProposal(event: CancelProposal): void {
   proposal.save();
 }
 
-// do a handleWithdrawEarnings
 
-// do a depositToIdle
+export function handleWithdrawEarnings(event: WithdrawEarnings): void {
+
+  log.info(
+    "***********handleWithdraw tx {}, ammount, {}, from {}, memberAddress {}",
+    [
+      event.transaction.hash.toHex(),
+      event.params.earningsToUser.toString(),
+      event.params.redeemedTokens.toString(),
+      event.transaction.from.toHex(),
+      event.params.memberAddress.toHex(),
+    ]
+  );
+
+  let molochId = event.address.toHexString();
+  let moloch = Moloch.load(molochId);
+
+  let memberId = molochId
+  .concat("-member-")
+  .concat(event.params.memberAddress.toHex());
+  let member = Member.load(memberId);
+
+  let idleTokenId = molochId.concat("-token-").concat(moloch.idleToken);
+  let depositTokenId = molochId.concat("-token-").concat(moloch.depositToken);
+  let redeemedTokens = event.params.redeemedTokens;
+
+  // increments member's iToken Redemptions 
+  member.iTokenRedemptions = member.iTokenRedemptions.plus(redeemedTokens);
+
+  // captures token conversions and transfers
+  if (event.params.earningsToUser > BigInt.fromI32(0)) {
+    subtractFromBalance(
+      molochId,
+      GUILD,
+      idleTokenId,
+      event.params.earningsToUser
+    );
+    addToBalance(
+      molochId, 
+      GUILD, 
+      depositTokenId, 
+      redeemedTokens
+    );
+    internalTransfer(
+      molochId,
+      GUILD,
+      event.params.memberAddress,
+      depositTokenId,
+      redeemedTokens
+    );
+  }
+  member.save();
+}
 
 
 export function handleWithdraw(event: Withdraw): void {

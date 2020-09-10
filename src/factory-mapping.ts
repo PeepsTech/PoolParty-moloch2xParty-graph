@@ -66,6 +66,7 @@ export function handleSummoned(event: PartyStarted): void {
   moloch.totalShares = BigInt.fromI32(0);
   moloch.totalLoot = BigInt.fromI32(0);
   moloch.totalDeposits = BigInt.fromI32(0);
+  moloch.goalHit = false;
   moloch.proposalCount = BigInt.fromI32(0);
   moloch.proposalQueueCount = BigInt.fromI32(0);
   moloch.proposedToJoin = new Array<string>();

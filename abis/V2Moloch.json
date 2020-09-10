@@ -66,37 +66,6 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "address",
-				"name": "newToken",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newIdle",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "depositRate",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "partyGoal",
-				"type": "uint256"
-			}
-		],
-		"name": "AmendGovernance",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
 				"internalType": "uint256",
 				"name": "proposalId",
 				"type": "uint256"
@@ -121,9 +90,15 @@
 				"type": "address"
 			},
 			{
-				"indexed": true,
+				"indexed": false,
 				"internalType": "uint256",
 				"name": "tribute",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "mintedTokens",
 				"type": "uint256"
 			},
 			{
@@ -141,7 +116,7 @@
 			{
 				"indexed": false,
 				"internalType": "uint8",
-				"name": "goal",
+				"name": "goalHit",
 				"type": "uint8"
 			}
 		],
@@ -168,9 +143,89 @@
 				"internalType": "bool",
 				"name": "didPass",
 				"type": "bool"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "newToken",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "newIdle",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newPartyGoal",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newDepositRate",
+				"type": "uint256"
+			}
+		],
+		"name": "ProcessAmendGovernance",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "proposalIndex",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "proposalId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "didPass",
+				"type": "bool"
 			}
 		],
 		"name": "ProcessGuildKickProposal",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "proposalIndex",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "proposalId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "idleRedemptionAmt",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "depositTokenAmt",
+				"type": "uint256"
+			}
+		],
+		"name": "ProcessIdleProposal",
 		"type": "event"
 	},
 	{
@@ -313,9 +368,9 @@
 			},
 			{
 				"indexed": false,
-				"internalType": "bool[7]",
+				"internalType": "bool[8]",
 				"name": "flags",
-				"type": "bool[7]"
+				"type": "bool[8]"
 			},
 			{
 				"indexed": false,
@@ -592,36 +647,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_newToken",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_idleToken",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_partyGoal",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_depositRate",
-				"type": "uint256"
-			}
-		],
-		"name": "amendGovernance",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [
 			{
@@ -827,9 +852,9 @@
 		"name": "getProposalFlags",
 		"outputs": [
 			{
-				"internalType": "bool[7]",
+				"internalType": "bool[8]",
 				"name": "",
-				"type": "bool[7]"
+				"type": "bool[8]"
 			}
 		],
 		"payable": false,
@@ -1145,6 +1170,21 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "proposalIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "processAmendGovernance",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

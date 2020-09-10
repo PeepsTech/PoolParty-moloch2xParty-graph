@@ -261,6 +261,15 @@ export class Moloch extends Entity {
     }
   }
 
+  get goalHit(): boolean {
+    let value = this.get("goalHit");
+    return value.toBoolean();
+  }
+
+  set goalHit(value: boolean) {
+    this.set("goalHit", Value.fromBoolean(value));
+  }
+
   get idleAvgCost(): BigInt | null {
     let value = this.get("idleAvgCost");
     if (value === null) {
@@ -522,6 +531,26 @@ export class Moloch extends Entity {
     } else {
       this.set(
         "proposedToTrade",
+        Value.fromStringArray(value as Array<string>)
+      );
+    }
+  }
+
+  get proposedToAmend(): Array<string> | null {
+    let value = this.get("proposedToAmend");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set proposedToAmend(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("proposedToAmend");
+    } else {
+      this.set(
+        "proposedToAmend",
         Value.fromStringArray(value as Array<string>)
       );
     }
@@ -831,38 +860,22 @@ export class Member extends Entity {
     }
   }
 
-  get iTokenAmts(): BigInt | null {
+  get iTokenAmts(): BigInt {
     let value = this.get("iTokenAmts");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value.toBigInt();
   }
 
-  set iTokenAmts(value: BigInt | null) {
-    if (value === null) {
-      this.unset("iTokenAmts");
-    } else {
-      this.set("iTokenAmts", Value.fromBigInt(value as BigInt));
-    }
+  set iTokenAmts(value: BigInt) {
+    this.set("iTokenAmts", Value.fromBigInt(value));
   }
 
-  get iTokenRedemptions(): BigInt | null {
+  get iTokenRedemptions(): BigInt {
     let value = this.get("iTokenRedemptions");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value.toBigInt();
   }
 
-  set iTokenRedemptions(value: BigInt | null) {
-    if (value === null) {
-      this.unset("iTokenRedemptions");
-    } else {
-      this.set("iTokenRedemptions", Value.fromBigInt(value as BigInt));
-    }
+  set iTokenRedemptions(value: BigInt) {
+    this.set("iTokenRedemptions", Value.fromBigInt(value));
   }
 
   get exists(): boolean {
@@ -1429,6 +1442,15 @@ export class Proposal extends Entity {
 
   set trade(value: boolean) {
     this.set("trade", Value.fromBoolean(value));
+  }
+
+  get governance(): boolean {
+    let value = this.get("governance");
+    return value.toBoolean();
+  }
+
+  set governance(value: boolean) {
+    this.set("governance", Value.fromBoolean(value));
   }
 
   get details(): Bytes {
