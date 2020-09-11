@@ -209,12 +209,11 @@ export function createAndApproveToken(molochId: string, token: Bytes): string {
 // used to create multiple summoners at time of summoning
 export function createAndAddSummoner(
   molochId: string,
-  summoner: Address,
-  _approvedTokens: Address[],
+  founder: Address,
   event: PartyStarted,
 ): string {
 
-  let memberId = molochId.concat("-member-").concat(summoner.toHex());
+  let memberId = molochId.concat("-member-").concat(founder.toHex());
   log.info('My MolochId is: {}', [molochId])
   let member = new Member(memberId);
   log.info('My memberId is: {}', [memberId])
@@ -224,7 +223,7 @@ export function createAndAddSummoner(
   log.info('My moloch is: {}', [molochId])
   member.createdAt = event.block.timestamp.toString();
   member.molochAddress = event.params.party;
-  member.memberAddress = summoner;
+  member.memberAddress = founder;
   member.shares = BigInt.fromI32(0);
   member.loot = BigInt.fromI32(0);
   member.tokenTribute = BigInt.fromI32(0);
@@ -235,22 +234,24 @@ export function createAndAddSummoner(
   member.proposedToKick = false;
   member.kicked = false;
 
-    //Set summoner summoner balances for approved tokens to zero
-  let tokens = event.params._approvedTokens;
-  for (let i = 0; i < tokens.length; i++) {
-    let token = tokens[i];
-    let tokenId = molochId.concat("-token-").concat(token.toHex());
-    createMemberTokenBalance(
-      molochId,
-      summoner,
-      tokenId,
-      BigInt.fromI32(0)
-    );
-  }
+  //Set summoner summoner balances for approved tokens to zero
+   let tokens = event.params._approvedTokens;
+   
+   for (let i = 0; i < tokens.length; i++) {
+     let token = tokens[i];
+     log.info('My token is: {}', [token.toHex()])
+     let tokenId = molochId.concat("-token-").concat(token.toHex());
+     createMemberTokenBalance(
+       molochId,
+       founder,
+       tokenId,
+       BigInt.fromI32(0)
+     );
+   }
   
   member.save();
 
-  addMembershipBadge(summoner);
+  addMembershipBadge(founder);
 
   return memberId;
 }

@@ -1,6 +1,6 @@
 type Moloch @entity {
   id: ID!
-  founders: [Member!]! @derivedFrom(field: "moloch")
+  founders: [Member!]! 
   name: Bytes
   desc: Bytes
   version: String

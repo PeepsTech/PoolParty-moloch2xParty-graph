@@ -32,19 +32,19 @@ export function handleSummoned(event: PartyStarted): void {
   moloch.depositToken = approvedTokens[0];
   moloch.idleToken = approvedTokens[1];
 
-  let eventSummoners = event.params._founders;
-  let summoners: string[] = [];
+  let eventFounders = event.params._founders;
+  let founders: string[] = [];
 
-  for (let i = 0; i < eventSummoners.length; i++) {
-    let summoner = eventSummoners[i];
-
-      summoners.push(
-        createAndAddSummoner(molochId, summoner, event.params._approvedTokens, event)
+  for (let i = 0; i < eventFounders.length; i++) {
+    let founder = eventFounders[i];
+      founders.push(
+        createAndAddSummoner(molochId, founder, event)
       );
     }
   
 
-  moloch.founders = summoners;
+  moloch.founders = founders;
+  log.info('Moloch founders are: {}', [moloch.founders.toString()])
   // @DEV - need to figure out a way to save this array of numbers, having issues with types and type conversions 
   //moloch.summonerShares = summonerShares;
   moloch.summoningTime = event.params.summoningTime;
@@ -61,6 +61,7 @@ export function handleSummoned(event: PartyStarted): void {
   moloch.dilutionBound = BigInt.fromI32(5);
   moloch.name = event.params._name;
   moloch.desc = event.params._desc;
+  moloch.approvedTokens = approvedTokens;
   moloch.guildTokenBalance = guildTokenBalance;
   moloch.escrowTokenBalance = escrowTokenBalance;
   moloch.totalShares = BigInt.fromI32(0);
@@ -69,6 +70,7 @@ export function handleSummoned(event: PartyStarted): void {
   moloch.goalHit = false;
   moloch.proposalCount = BigInt.fromI32(0);
   moloch.proposalQueueCount = BigInt.fromI32(0);
+  log.info('Moloch proposal queue is: {}', [moloch.proposalQueueCount.toString()])
   moloch.proposedToJoin = new Array<string>();
   moloch.proposedToKick = new Array<string>();
   moloch.proposedToFund = new Array<string>();
