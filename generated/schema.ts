@@ -42,6 +42,15 @@ export class Moloch extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get partyAddress(): Bytes {
+    let value = this.get("partyAddress");
+    return value.toBytes();
+  }
+
+  set partyAddress(value: Bytes) {
+    this.set("partyAddress", Value.fromBytes(value));
+  }
+
   get founders(): Array<string> {
     let value = this.get("founders");
     return value.toStringArray();
@@ -1212,15 +1221,6 @@ export class Proposal extends Entity {
     this.set("memberAddress", Value.fromBytes(value));
   }
 
-  get delegateKey(): Bytes {
-    let value = this.get("delegateKey");
-    return value.toBytes();
-  }
-
-  set delegateKey(value: Bytes) {
-    this.set("delegateKey", Value.fromBytes(value));
-  }
-
   get applicant(): Bytes {
     let value = this.get("applicant");
     return value.toBytes();
@@ -1534,31 +1534,55 @@ export class Proposal extends Entity {
     this.set("noShares", Value.fromBigInt(value));
   }
 
-  get votingPeriodStarts(): BigInt {
+  get votingPeriodStarts(): BigInt | null {
     let value = this.get("votingPeriodStarts");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set votingPeriodStarts(value: BigInt) {
-    this.set("votingPeriodStarts", Value.fromBigInt(value));
+  set votingPeriodStarts(value: BigInt | null) {
+    if (value === null) {
+      this.unset("votingPeriodStarts");
+    } else {
+      this.set("votingPeriodStarts", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get votingPeriodEnds(): BigInt {
+  get votingPeriodEnds(): BigInt | null {
     let value = this.get("votingPeriodEnds");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set votingPeriodEnds(value: BigInt) {
-    this.set("votingPeriodEnds", Value.fromBigInt(value));
+  set votingPeriodEnds(value: BigInt | null) {
+    if (value === null) {
+      this.unset("votingPeriodEnds");
+    } else {
+      this.set("votingPeriodEnds", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get gracePeriodEnds(): BigInt {
+  get gracePeriodEnds(): BigInt | null {
     let value = this.get("gracePeriodEnds");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set gracePeriodEnds(value: BigInt) {
-    this.set("gracePeriodEnds", Value.fromBigInt(value));
+  set gracePeriodEnds(value: BigInt | null) {
+    if (value === null) {
+      this.unset("gracePeriodEnds");
+    } else {
+      this.set("gracePeriodEnds", Value.fromBigInt(value as BigInt));
+    }
   }
 }
 

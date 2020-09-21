@@ -1,5 +1,6 @@
 type Moloch @entity {
   id: ID!
+  partyAddress: Bytes!
   founders: [Member!]! 
   name: Bytes
   desc: Bytes
@@ -103,7 +104,6 @@ type Proposal @entity {
   molochAddress: Bytes!
   member: Member!
   memberAddress: Bytes!
-  delegateKey: Bytes!
   applicant: Bytes!
   proposer: Bytes!
   sponsor: Bytes!
@@ -135,9 +135,9 @@ type Proposal @entity {
   yesShares: BigInt!
   noShares: BigInt!
 
-  votingPeriodStarts: BigInt!
-  votingPeriodEnds: BigInt!
-  gracePeriodEnds: BigInt!
+  votingPeriodStarts: BigInt
+  votingPeriodEnds: BigInt
+  gracePeriodEnds: BigInt
 }
 
 type Badge @entity {

@@ -48,7 +48,8 @@ export function handleSummoned(event: PartyStarted): void {
   // @DEV - need to figure out a way to save this array of numbers, having issues with types and type conversions 
   //moloch.summonerShares = summonerShares;
   moloch.summoningTime = event.params.summoningTime;
-  moloch.version = "2x";
+  moloch.version = "2xParty";
+  moloch.partyAddress = event.params.party;
   moloch.deleted = false;
   moloch.newContract = "1";
   moloch.depositRate = event.params._depositRate;
