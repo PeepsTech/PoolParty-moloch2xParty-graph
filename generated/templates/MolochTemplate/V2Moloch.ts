@@ -659,6 +659,25 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toAddress());
   }
 
+  actions(param0: BigInt): Bytes {
+    let result = super.call("actions", [
+      EthereumValue.fromUnsignedBigInt(param0)
+    ]);
+
+    return result[0].toBytes();
+  }
+
+  try_actions(param0: BigInt): CallResult<Bytes> {
+    let result = super.tryCall("actions", [
+      EthereumValue.fromUnsignedBigInt(param0)
+    ]);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toBytes());
+  }
+
   approvedTokens(param0: BigInt): Address {
     let result = super.call("approvedTokens", [
       EthereumValue.fromUnsignedBigInt(param0)

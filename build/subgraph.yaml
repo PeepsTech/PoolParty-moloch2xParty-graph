@@ -6,7 +6,7 @@ dataSources:
     name: MolochSummoner
     network: kovan
     source:
-      address: "0xfE865B6D3F84b85722b6d464186CD7Be71A8D6eD"
+      address: "0x1BB091ECe9131D495c616e4e7C65f1ca7D8a3490"
       abi: V2Factory
       startBlock: 20785913
     mapping:
@@ -79,6 +79,8 @@ templates:
           handler: handleCancelProposal
         - event: Withdraw(indexed address,address,uint256)
           handler: handleWithdraw
+        - event: WithdrawEarnings(indexed address,uint256,uint256)
+          handler: handleWithdrawEarnings
         - event: Ragequit(indexed address,uint256,uint256)
           handler: handleRagequit
         - event: TokensCollected(indexed address,uint256)

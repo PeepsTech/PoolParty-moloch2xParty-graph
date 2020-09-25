@@ -1013,9 +1013,18 @@ export function handleWithdrawEarnings(event: WithdrawEarnings): void {
   let idleTokenId = molochId.concat("-token-").concat(moloch.idleToken);
   let depositTokenId = molochId.concat("-token-").concat(moloch.depositToken);
   let redeemedTokens = event.params.redeemedTokens;
+  let earningsToUser = event.params.earningsToUser;
+  log.info('earningsToUser: {}', [earningsToUser.toString()])
+
 
   // increments member's iToken Redemptions 
-  member.iTokenRedemptions = member.iTokenRedemptions.plus(redeemedTokens);
+  let iTokenRedemptions = member.iTokenRedemptions;
+  log.info('iTokenRedemptions: {}', [iTokenRedemptions.toString()])
+
+  member.iTokenRedemptions = iTokenRedemptions.plus(earningsToUser);
+  log.info('NewiTokenRedemptions: {}', [iTokenRedemptions.toString()])
+
+  member.save();
 
   // captures token conversions and transfers
   if (event.params.earningsToUser > BigInt.fromI32(0)) {
@@ -1039,7 +1048,7 @@ export function handleWithdrawEarnings(event: WithdrawEarnings): void {
       redeemedTokens
     );
   }
-  member.save();
+  moloch.save();
 }
 
 
