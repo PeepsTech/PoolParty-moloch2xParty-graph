@@ -6,7 +6,7 @@ dataSources:
     name: MolochSummoner
     network: kovan 
     source:
-      address: "0x1BB091ECe9131D495c616e4e7C65f1ca7D8a3490" # kovan
+      address: "0x790FBc30C2cb74D54aA16a2F5c9DB6024152836b" # kovan
       abi: V2Factory
       startBlock: 20785913
     mapping:
