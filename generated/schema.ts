@@ -913,13 +913,21 @@ export class Member extends Entity {
     }
   }
 
-  get tokenTribute(): BigInt {
+  get tokenTribute(): BigInt | null {
     let value = this.get("tokenTribute");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set tokenTribute(value: BigInt) {
-    this.set("tokenTribute", Value.fromBigInt(value));
+  set tokenTribute(value: BigInt | null) {
+    if (value === null) {
+      this.unset("tokenTribute");
+    } else {
+      this.set("tokenTribute", Value.fromBigInt(value as BigInt));
+    }
   }
 
   get didRagequit(): boolean {

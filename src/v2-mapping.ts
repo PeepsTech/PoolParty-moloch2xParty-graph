@@ -570,6 +570,7 @@ export function handleProcessProposal(event: ProcessProposal): void {
     //NOTE: Add shares/loot do intake tribute from escrow, payout from guild bank
     moloch.totalShares = moloch.totalShares.plus(proposal.sharesRequested);
     moloch.totalLoot = moloch.totalLoot.plus(proposal.lootRequested);
+
     if(proposal.tributeToken.toHex() == moloch.depositToken){
       subtractFromBalance(
         molochId,
@@ -614,6 +615,8 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.loot = BigInt.fromI32(0);
       newMember.exists = false;
       newMember.tokenTribute = BigInt.fromI32(0);
+      newMember.iTokenAmts = BigInt.fromI32(0);
+      newMember.iTokenRedemptions = BigInt.fromI32(0);
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
       newMember.kicked = false;
@@ -903,7 +906,7 @@ export function handleRagequit(event: Ragequit): void {
     );
     // adjusts for previous iToken redemptions
     let iTokenRed = member.iTokenRedemptions;
-    if(iTokenRed > BigInt.fromI32(0)){
+    if(iTokenRed){
       internalTransfer(
         molochId,
         member.memberAddress,

@@ -74,7 +74,7 @@ type Member @entity {
   iTokenRedemptions: BigInt!
   exists: Boolean!
   highestIndexYesVote: Proposal
-  tokenTribute: BigInt!
+  tokenTribute: BigInt
   didRagequit: Boolean!
   votes: [Vote!] @derivedFrom(field: "member")
   submissions: [Proposal!] @derivedFrom(field: "member")
