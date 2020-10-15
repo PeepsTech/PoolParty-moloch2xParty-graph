@@ -507,8 +507,9 @@ export class V2Moloch__membersResult {
   value2: BigInt;
   value3: BigInt;
   value4: BigInt;
-  value5: boolean;
+  value5: BigInt;
   value6: boolean;
+  value7: boolean;
 
   constructor(
     value0: BigInt,
@@ -516,8 +517,9 @@ export class V2Moloch__membersResult {
     value2: BigInt,
     value3: BigInt,
     value4: BigInt,
-    value5: boolean,
-    value6: boolean
+    value5: BigInt,
+    value6: boolean,
+    value7: boolean
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -526,6 +528,7 @@ export class V2Moloch__membersResult {
     this.value4 = value4;
     this.value5 = value5;
     this.value6 = value6;
+    this.value7 = value7;
   }
 
   toMap(): TypedMap<string, EthereumValue> {
@@ -535,8 +538,9 @@ export class V2Moloch__membersResult {
     map.set("value2", EthereumValue.fromUnsignedBigInt(this.value2));
     map.set("value3", EthereumValue.fromUnsignedBigInt(this.value3));
     map.set("value4", EthereumValue.fromUnsignedBigInt(this.value4));
-    map.set("value5", EthereumValue.fromBoolean(this.value5));
+    map.set("value5", EthereumValue.fromUnsignedBigInt(this.value5));
     map.set("value6", EthereumValue.fromBoolean(this.value6));
+    map.set("value7", EthereumValue.fromBoolean(this.value7));
     return map;
   }
 }
@@ -716,6 +720,21 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toBoolean());
   }
 
+  checkGoal(): i32 {
+    let result = super.call("checkGoal", []);
+
+    return result[0].toI32();
+  }
+
+  try_checkGoal(): CallResult<i32> {
+    let result = super.tryCall("checkGoal", []);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toI32());
+  }
+
   daoFee(): Address {
     let result = super.call("daoFee", []);
 
@@ -759,21 +778,6 @@ export class V2Moloch extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(value[0].toAddress());
-  }
-
-  desc(): Bytes {
-    let result = super.call("desc", []);
-
-    return result[0].toBytes();
-  }
-
-  try_desc(): CallResult<Bytes> {
-    let result = super.tryCall("desc", []);
-    if (result.reverted) {
-      return new CallResult();
-    }
-    let value = result.value;
-    return CallResult.fromValue(value[0].toBytes());
   }
 
   getCurrentPeriod(): BigInt {
@@ -902,25 +906,6 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toBigInt());
   }
 
-  getUserIdleBalance(user: Address): BigInt {
-    let result = super.call("getUserIdleBalance", [
-      EthereumValue.fromAddress(user)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_getUserIdleBalance(user: Address): CallResult<BigInt> {
-    let result = super.tryCall("getUserIdleBalance", [
-      EthereumValue.fromAddress(user)
-    ]);
-    if (result.reverted) {
-      return new CallResult();
-    }
-    let value = result.value;
-    return CallResult.fromValue(value[0].toBigInt());
-  }
-
   getUserTokenBalance(user: Address, token: Address): BigInt {
     let result = super.call("getUserTokenBalance", [
       EthereumValue.fromAddress(user),
@@ -1021,6 +1006,21 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toAddress());
   }
 
+  initialized(): boolean {
+    let result = super.call("initialized", []);
+
+    return result[0].toBoolean();
+  }
+
+  try_initialized(): CallResult<boolean> {
+    let result = super.tryCall("initialized", []);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toBoolean());
+  }
+
   memberList(param0: BigInt): Address {
     let result = super.call("memberList", [
       EthereumValue.fromUnsignedBigInt(param0)
@@ -1049,8 +1049,9 @@ export class V2Moloch extends SmartContract {
       result[2].toBigInt(),
       result[3].toBigInt(),
       result[4].toBigInt(),
-      result[5].toBoolean(),
-      result[6].toBoolean()
+      result[5].toBigInt(),
+      result[6].toBoolean(),
+      result[7].toBoolean()
     );
   }
 
@@ -1067,25 +1068,11 @@ export class V2Moloch extends SmartContract {
         value[2].toBigInt(),
         value[3].toBigInt(),
         value[4].toBigInt(),
-        value[5].toBoolean(),
-        value[6].toBoolean()
+        value[5].toBigInt(),
+        value[6].toBoolean(),
+        value[7].toBoolean()
       )
     );
-  }
-
-  name(): Bytes {
-    let result = super.call("name", []);
-
-    return result[0].toBytes();
-  }
-
-  try_name(): CallResult<Bytes> {
-    let result = super.tryCall("name", []);
-    if (result.reverted) {
-      return new CallResult();
-    }
-    let value = result.value;
-    return CallResult.fromValue(value[0].toBytes());
   }
 
   partyGoal(): BigInt {
@@ -1408,76 +1395,6 @@ export class V2Moloch extends SmartContract {
   }
 }
 
-export class ConstructorCall extends EthereumCall {
-  get inputs(): ConstructorCall__Inputs {
-    return new ConstructorCall__Inputs(this);
-  }
-
-  get outputs(): ConstructorCall__Outputs {
-    return new ConstructorCall__Outputs(this);
-  }
-}
-
-export class ConstructorCall__Inputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-
-  get _founders(): Array<Address> {
-    return this._call.inputValues[0].value.toAddressArray();
-  }
-
-  get _approvedTokens(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
-  }
-
-  get _daoFee(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get _periodDuration(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-
-  get _votingPeriodLength(): BigInt {
-    return this._call.inputValues[4].value.toBigInt();
-  }
-
-  get _gracePeriodLength(): BigInt {
-    return this._call.inputValues[5].value.toBigInt();
-  }
-
-  get _proposalDepositReward(): BigInt {
-    return this._call.inputValues[6].value.toBigInt();
-  }
-
-  get _depositRate(): BigInt {
-    return this._call.inputValues[7].value.toBigInt();
-  }
-
-  get _partyGoal(): BigInt {
-    return this._call.inputValues[8].value.toBigInt();
-  }
-
-  get _name(): Bytes {
-    return this._call.inputValues[9].value.toBytes();
-  }
-
-  get _desc(): Bytes {
-    return this._call.inputValues[10].value.toBytes();
-  }
-}
-
-export class ConstructorCall__Outputs {
-  _call: ConstructorCall;
-
-  constructor(call: ConstructorCall) {
-    this._call = call;
-  }
-}
-
 export class CancelProposalCall extends EthereumCall {
   get inputs(): CancelProposalCall__Inputs {
     return new CancelProposalCall__Inputs(this);
@@ -1505,6 +1422,36 @@ export class CancelProposalCall__Outputs {
 
   constructor(call: CancelProposalCall) {
     this._call = call;
+  }
+}
+
+export class CheckGoalCall extends EthereumCall {
+  get inputs(): CheckGoalCall__Inputs {
+    return new CheckGoalCall__Inputs(this);
+  }
+
+  get outputs(): CheckGoalCall__Outputs {
+    return new CheckGoalCall__Outputs(this);
+  }
+}
+
+export class CheckGoalCall__Inputs {
+  _call: CheckGoalCall;
+
+  constructor(call: CheckGoalCall) {
+    this._call = call;
+  }
+}
+
+export class CheckGoalCall__Outputs {
+  _call: CheckGoalCall;
+
+  constructor(call: CheckGoalCall) {
+    this._call = call;
+  }
+
+  get value0(): i32 {
+    return this._call.outputValues[0].value.toI32();
   }
 }
 
@@ -1569,6 +1516,68 @@ export class GetUserEarningsCall__Outputs {
 
   get value0(): BigInt {
     return this._call.outputValues[0].value.toBigInt();
+  }
+}
+
+export class InitCall extends EthereumCall {
+  get inputs(): InitCall__Inputs {
+    return new InitCall__Inputs(this);
+  }
+
+  get outputs(): InitCall__Outputs {
+    return new InitCall__Outputs(this);
+  }
+}
+
+export class InitCall__Inputs {
+  _call: InitCall;
+
+  constructor(call: InitCall) {
+    this._call = call;
+  }
+
+  get _founders(): Array<Address> {
+    return this._call.inputValues[0].value.toAddressArray();
+  }
+
+  get _approvedTokens(): Array<Address> {
+    return this._call.inputValues[1].value.toAddressArray();
+  }
+
+  get _daoFee(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+
+  get _periodDuration(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get _votingPeriodLength(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
+  }
+
+  get _gracePeriodLength(): BigInt {
+    return this._call.inputValues[5].value.toBigInt();
+  }
+
+  get _proposalDepositReward(): BigInt {
+    return this._call.inputValues[6].value.toBigInt();
+  }
+
+  get _depositRate(): BigInt {
+    return this._call.inputValues[7].value.toBigInt();
+  }
+
+  get _partyGoal(): BigInt {
+    return this._call.inputValues[8].value.toBigInt();
+  }
+}
+
+export class InitCall__Outputs {
+  _call: InitCall;
+
+  constructor(call: InitCall) {
+    this._call = call;
   }
 }
 
@@ -1737,14 +1746,6 @@ export class RagequitCall__Inputs {
 
   constructor(call: RagequitCall) {
     this._call = call;
-  }
-
-  get sharesToBurn(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get lootToBurn(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
   }
 }
 

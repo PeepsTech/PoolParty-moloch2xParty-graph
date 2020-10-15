@@ -28,7 +28,7 @@ export class PartyStarted__Params {
     this._event = event;
   }
 
-  get party(): Address {
+  get pty(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 
@@ -68,16 +68,8 @@ export class PartyStarted__Params {
     return this._event.parameters[9].value.toBigInt();
   }
 
-  get _name(): Bytes {
-    return this._event.parameters[10].value.toBytes();
-  }
-
-  get _desc(): Bytes {
-    return this._event.parameters[11].value.toBytes();
-  }
-
   get summoningTime(): BigInt {
-    return this._event.parameters[12].value.toBigInt();
+    return this._event.parameters[10].value.toBigInt();
   }
 }
 
@@ -86,19 +78,104 @@ export class V2Factory extends SmartContract {
     return new V2Factory("V2Factory", address);
   }
 
-  party(): Address {
-    let result = super.call("party", []);
+  startParty(
+    _founders: Array<Address>,
+    _approvedTokens: Array<Address>,
+    _daoFees: Address,
+    _periodDuration: BigInt,
+    _votingPeriodLength: BigInt,
+    _gracePeriodLength: BigInt,
+    _proposalDepositReward: BigInt,
+    _depositRate: BigInt,
+    _partyGoal: BigInt
+  ): Address {
+    let result = super.call("startParty", [
+      EthereumValue.fromAddressArray(_founders),
+      EthereumValue.fromAddressArray(_approvedTokens),
+      EthereumValue.fromAddress(_daoFees),
+      EthereumValue.fromUnsignedBigInt(_periodDuration),
+      EthereumValue.fromUnsignedBigInt(_votingPeriodLength),
+      EthereumValue.fromUnsignedBigInt(_gracePeriodLength),
+      EthereumValue.fromUnsignedBigInt(_proposalDepositReward),
+      EthereumValue.fromUnsignedBigInt(_depositRate),
+      EthereumValue.fromUnsignedBigInt(_partyGoal)
+    ]);
 
     return result[0].toAddress();
   }
 
-  try_party(): CallResult<Address> {
-    let result = super.tryCall("party", []);
+  try_startParty(
+    _founders: Array<Address>,
+    _approvedTokens: Array<Address>,
+    _daoFees: Address,
+    _periodDuration: BigInt,
+    _votingPeriodLength: BigInt,
+    _gracePeriodLength: BigInt,
+    _proposalDepositReward: BigInt,
+    _depositRate: BigInt,
+    _partyGoal: BigInt
+  ): CallResult<Address> {
+    let result = super.tryCall("startParty", [
+      EthereumValue.fromAddressArray(_founders),
+      EthereumValue.fromAddressArray(_approvedTokens),
+      EthereumValue.fromAddress(_daoFees),
+      EthereumValue.fromUnsignedBigInt(_periodDuration),
+      EthereumValue.fromUnsignedBigInt(_votingPeriodLength),
+      EthereumValue.fromUnsignedBigInt(_gracePeriodLength),
+      EthereumValue.fromUnsignedBigInt(_proposalDepositReward),
+      EthereumValue.fromUnsignedBigInt(_depositRate),
+      EthereumValue.fromUnsignedBigInt(_partyGoal)
+    ]);
     if (result.reverted) {
       return new CallResult();
     }
     let value = result.value;
     return CallResult.fromValue(value[0].toAddress());
+  }
+
+  template(): Address {
+    let result = super.call("template", []);
+
+    return result[0].toAddress();
+  }
+
+  try_template(): CallResult<Address> {
+    let result = super.tryCall("template", []);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toAddress());
+  }
+}
+
+export class ConstructorCall extends EthereumCall {
+  get inputs(): ConstructorCall__Inputs {
+    return new ConstructorCall__Inputs(this);
+  }
+
+  get outputs(): ConstructorCall__Outputs {
+    return new ConstructorCall__Outputs(this);
+  }
+}
+
+export class ConstructorCall__Inputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+
+  get _template(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class ConstructorCall__Outputs {
+  _call: ConstructorCall;
+
+  constructor(call: ConstructorCall) {
+    this._call = call;
   }
 }
 
@@ -154,14 +231,6 @@ export class StartPartyCall__Inputs {
   get _partyGoal(): BigInt {
     return this._call.inputValues[8].value.toBigInt();
   }
-
-  get _name(): Bytes {
-    return this._call.inputValues[9].value.toBytes();
-  }
-
-  get _desc(): Bytes {
-    return this._call.inputValues[10].value.toBytes();
-  }
 }
 
 export class StartPartyCall__Outputs {
@@ -169,5 +238,9 @@ export class StartPartyCall__Outputs {
 
   constructor(call: StartPartyCall) {
     this._call = call;
+  }
+
+  get value0(): Address {
+    return this._call.outputValues[0].value.toAddress();
   }
 }

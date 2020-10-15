@@ -222,13 +222,14 @@ export function createAndAddSummoner(
   member.moloch = molochId;
   log.info('My moloch is: {}', [molochId])
   member.createdAt = event.block.timestamp.toString();
-  member.molochAddress = event.params.party;
+  member.molochAddress = event.params.pty;
   member.memberAddress = founder;
   member.shares = BigInt.fromI32(0);
   member.loot = BigInt.fromI32(0);
   member.tokenTribute = BigInt.fromI32(0);
-  member.iTokenAmts = BigInt.fromI32(0);
-  member.iTokenRedemptions = BigInt.fromI32(0);
+  member.iTB = BigInt.fromI32(0);
+  member.iTW = BigInt.fromI32(0);
+  member.iVal = BigInt.fromI32(0);
   member.didRagequit = false;
   member.exists = true;
   member.proposedToKick = false;
@@ -270,7 +271,8 @@ export function handleMakeDeposit(event: MakeDeposit): void {
   let mintedTokens = event.params.mintedTokens;
   
   member.tokenTribute = tribute;
-  member.iTokenAmts = member.iTokenAmts.plus(mintedTokens);
+  member.iTB = member.iTB.plus(mintedTokens);
+  member.iVal = member.iVal.plus(tribute);
   member.shares = member.shares.plus(event.params.shares);
   member.save();
 
@@ -553,8 +555,9 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
       newMember.kicked = false;
-      newMember.iTokenAmts = BigInt.fromI32(0);
-      newMember.iTokenRedemptions = BigInt.fromI32(0);
+      newMember.iTB = BigInt.fromI32(0);
+      newMember.iTW = BigInt.fromI32(0);
+      newMember.iVal = BigInt.fromI32(0);
 
       newMember.save();
 
@@ -615,8 +618,9 @@ export function handleProcessProposal(event: ProcessProposal): void {
       newMember.loot = BigInt.fromI32(0);
       newMember.exists = false;
       newMember.tokenTribute = BigInt.fromI32(0);
-      newMember.iTokenAmts = BigInt.fromI32(0);
-      newMember.iTokenRedemptions = BigInt.fromI32(0);
+      newMember.iTB = BigInt.fromI32(0);
+      newMember.iTW = BigInt.fromI32(0);
+      newMember.iVal = BigInt.fromI32(0);
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
       newMember.kicked = false;
@@ -878,11 +882,6 @@ export function handleRagequit(event: Ragequit): void {
   moloch.totalShares = moloch.totalShares.minus(event.params.sharesToBurn);
   moloch.totalLoot = moloch.totalLoot.minus(event.params.lootToBurn);
 
-  // set to doesn't exist if no shares?
-  if (member.shares.equals(new BigInt(0))) {
-    member.exists = false;
-  }
-
   // for each approved token, calculate the fairshare value and transfer from guildbank to user
   let tokens = moloch.approvedTokens;
   for (let i = 0; i < tokens.length; i++) {
@@ -905,14 +904,14 @@ export function handleRagequit(event: Ragequit): void {
       amountToRageQuit
     );
     // adjusts for previous iToken redemptions
-    let iTokenRed = member.iTokenRedemptions;
-    if(iTokenRed){
+    let iAdj = amountToRageQuit.minus(member.iTB);
+    if(iAdj){
       internalTransfer(
         molochId,
         member.memberAddress,
         GUILD,
         idleToken,
-        iTokenRed
+        iAdj
       );
     }
 
@@ -922,6 +921,9 @@ export function handleRagequit(event: Ragequit): void {
 
   addRageQuitBadge(event.params.memberAddress, event.transaction);
 
+  member.iTW = BigInt.fromI32(0);
+  member.iTB = BigInt.fromI32(0);
+  member.iVal = BigInt.fromI32(0);
   member.save();
   moloch.save();
 
@@ -967,6 +969,9 @@ export function handleCancelProposal(event: CancelProposal): void {
       newMember.loot = proposal.lootRequested;
       newMember.exists = false;
       newMember.tokenTribute = BigInt.fromI32(0);
+      newMember.iTB = BigInt.fromI32(0);
+      newMember.iTW = BigInt.fromI32(0);
+      newMember.iVal = BigInt.fromI32(0);
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
       newMember.kicked = false;
@@ -1021,11 +1026,14 @@ export function handleWithdrawEarnings(event: WithdrawEarnings): void {
 
 
   // increments member's iToken Redemptions 
-  let iTokenRedemptions = member.iTokenRedemptions;
+  let iTokenRedemptions = member.iTW;
   log.info('iTokenRedemptions: {}', [iTokenRedemptions.toString()])
-
-  member.iTokenRedemptions = iTokenRedemptions.plus(earningsToUser);
-  log.info('NewiTokenRedemptions: {}', [iTokenRedemptions.toString()])
+  let iTokenBalance = member.iTB;
+  log.info('iTokenBal: {}', [iTokenBalance.toString()])
+  member.iTW = iTokenRedemptions.plus(earningsToUser);
+  log.info('NewiTW: {}', [member.iTW.toString()])
+  member.iTB = iTokenBalance.minus(earningsToUser);
+  log.info('NewiBal: {}', [member.iTB.toString()])
 
   member.save();
 

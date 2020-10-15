@@ -1,67 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "_founders",
-        "type": "address[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "_approvedTokens",
-        "type": "address[]"
-      },
-      {
-        "internalType": "address",
-        "name": "_daoFee",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_periodDuration",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_votingPeriodLength",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_gracePeriodLength",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_proposalDepositReward",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_depositRate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_partyGoal",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_name",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_desc",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -705,6 +643,21 @@
   },
   {
     "constant": false,
+    "inputs": [],
+    "name": "checkGoal",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
     "inputs": [
       {
         "internalType": "address",
@@ -757,21 +710,6 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "desc",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -919,27 +857,6 @@
         "internalType": "address",
         "name": "user",
         "type": "address"
-      }
-    ],
-    "name": "getUserIdleBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
       },
       {
         "internalType": "address",
@@ -1044,6 +961,76 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address[]",
+        "name": "_founders",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_approvedTokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_daoFee",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_periodDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_votingPeriodLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_gracePeriodLength",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_proposalDepositReward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_depositRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_partyGoal",
+        "type": "uint256"
+      }
+    ],
+    "name": "init",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "initialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -1099,12 +1086,17 @@
       },
       {
         "internalType": "uint256",
-        "name": "iTokenAmts",
+        "name": "iTB",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "iTokenRedemptions",
+        "name": "iTW",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "iVal",
         "type": "uint256"
       },
       {
@@ -1121,21 +1113,6 @@
         "internalType": "bool",
         "name": "exists",
         "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "name",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -1392,18 +1369,7 @@
   },
   {
     "constant": false,
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "sharesToBurn",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lootToBurn",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "name": "ragequit",
     "outputs": [],
     "payable": false,

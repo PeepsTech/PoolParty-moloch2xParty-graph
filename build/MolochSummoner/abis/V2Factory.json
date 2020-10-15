@@ -1,11 +1,23 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_template",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
         "internalType": "address",
-        "name": "party",
+        "name": "pty",
         "type": "address"
       },
       {
@@ -61,18 +73,6 @@
         "internalType": "uint256",
         "name": "_partyGoal",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "_name",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "_desc",
-        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -131,20 +131,16 @@
         "internalType": "uint256",
         "name": "_partyGoal",
         "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_name",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_desc",
-        "type": "bytes32"
       }
     ],
     "name": "startParty",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "contract Party",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
@@ -152,10 +148,10 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "party",
+    "name": "template",
     "outputs": [
       {
-        "internalType": "contract Party",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }

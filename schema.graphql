@@ -2,8 +2,6 @@ type Moloch @entity {
   id: ID!
   partyAddress: Bytes!
   founders: [Member!]! 
-  name: Bytes
-  desc: Bytes
   version: String
   newContract: String
   deleted: Boolean
@@ -70,8 +68,9 @@ type Member @entity {
   memberAddress: Bytes!
   shares: BigInt!
   loot: BigInt
-  iTokenAmts: BigInt!
-  iTokenRedemptions: BigInt!
+  iTB: BigInt!
+  iTW: BigInt!
+  iVal: BigInt!
   exists: Boolean!
   highestIndexYesVote: Proposal
   tokenTribute: BigInt

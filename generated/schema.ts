@@ -60,40 +60,6 @@ export class Moloch extends Entity {
     this.set("founders", Value.fromStringArray(value));
   }
 
-  get name(): Bytes | null {
-    let value = this.get("name");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set name(value: Bytes | null) {
-    if (value === null) {
-      this.unset("name");
-    } else {
-      this.set("name", Value.fromBytes(value as Bytes));
-    }
-  }
-
-  get desc(): Bytes | null {
-    let value = this.get("desc");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set desc(value: Bytes | null) {
-    if (value === null) {
-      this.unset("desc");
-    } else {
-      this.set("desc", Value.fromBytes(value as Bytes));
-    }
-  }
-
   get version(): string | null {
     let value = this.get("version");
     if (value === null) {
@@ -869,22 +835,31 @@ export class Member extends Entity {
     }
   }
 
-  get iTokenAmts(): BigInt {
-    let value = this.get("iTokenAmts");
+  get iTB(): BigInt {
+    let value = this.get("iTB");
     return value.toBigInt();
   }
 
-  set iTokenAmts(value: BigInt) {
-    this.set("iTokenAmts", Value.fromBigInt(value));
+  set iTB(value: BigInt) {
+    this.set("iTB", Value.fromBigInt(value));
   }
 
-  get iTokenRedemptions(): BigInt {
-    let value = this.get("iTokenRedemptions");
+  get iTW(): BigInt {
+    let value = this.get("iTW");
     return value.toBigInt();
   }
 
-  set iTokenRedemptions(value: BigInt) {
-    this.set("iTokenRedemptions", Value.fromBigInt(value));
+  set iTW(value: BigInt) {
+    this.set("iTW", Value.fromBigInt(value));
+  }
+
+  get iVal(): BigInt {
+    let value = this.get("iVal");
+    return value.toBigInt();
+  }
+
+  set iVal(value: BigInt) {
+    this.set("iVal", Value.fromBigInt(value));
   }
 
   get exists(): boolean {

@@ -8,12 +8,12 @@ import { createAndApproveToken, createEscrowTokenBalance, createGuildTokenBalanc
 
 export function handleSummoned(event: PartyStarted): void {
   
-  MolochTemplate.create(event.params.party);
+  MolochTemplate.create(event.params.pty);
 
   const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
   let GUILD = Address.fromString("0x000000000000000000000000000000000000beef");
 
-  let molochId = event.params.party.toHex();
+  let molochId = event.params.pty.toHex();
   let moloch = new Moloch(molochId);
 
   let tokens = event.params._approvedTokens;
@@ -49,7 +49,7 @@ export function handleSummoned(event: PartyStarted): void {
   //moloch.summonerShares = summonerShares;
   moloch.summoningTime = event.params.summoningTime;
   moloch.version = "2xParty";
-  moloch.partyAddress = event.params.party;
+  moloch.partyAddress = event.params.pty;
   moloch.deleted = false;
   moloch.newContract = "1";
   moloch.depositRate = event.params._depositRate;
@@ -60,8 +60,6 @@ export function handleSummoned(event: PartyStarted): void {
   moloch.gracePeriodLength = event.params._gracePeriodLength;
   moloch.proposalDepositReward = event.params._proposalDepositReward;
   moloch.dilutionBound = BigInt.fromI32(5);
-  moloch.name = event.params._name;
-  moloch.desc = event.params._desc;
   moloch.approvedTokens = approvedTokens;
   moloch.guildTokenBalance = guildTokenBalance;
   moloch.escrowTokenBalance = escrowTokenBalance;
