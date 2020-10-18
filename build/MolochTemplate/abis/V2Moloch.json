@@ -504,9 +504,21 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "iToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "earningsToUser",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "depositToken",
+        "type": "address"
       },
       {
         "indexed": false,

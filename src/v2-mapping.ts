@@ -69,6 +69,7 @@ function addToBalance(
     token
   );
   balance.tokenBalance = balance.tokenBalance.plus(amount);
+  log.info('add - token balance: {}', [balance.tokenBalance.toString()])
   balance.save();
   return tokenBalanceId;
 }
@@ -84,7 +85,10 @@ function subtractFromBalance(
     member,
     token
   );
-  balance.tokenBalance = balance.tokenBalance.minus(amount);
+
+    balance.tokenBalance = balance.tokenBalance.minus(amount);
+    log.info('sub - token balance: {}', [balance.tokenBalance.toString()])
+  
   balance.save();
   return tokenBalanceId;
 }
@@ -895,6 +899,8 @@ export function handleRagequit(event: Ragequit): void {
 
     let balanceTimesBurn = balance.tokenBalance.times(sharesAndLootToBurn);
     let amountToRageQuit = balanceTimesBurn.div(initialTotalSharesAndLoot);
+    let iTB = member.iTB;
+    log.info("********Member iTB {}*********", [iTB.toString()]);
 
     internalTransfer(
       molochId,
@@ -903,20 +909,19 @@ export function handleRagequit(event: Ragequit): void {
       token,
       amountToRageQuit
     );
-    // adjusts for previous iToken redemptions
-    let iAdj = amountToRageQuit.minus(member.iTB);
-    if(iAdj){
-      internalTransfer(
-        molochId,
-        member.memberAddress,
-        GUILD,
-        idleToken,
-        iAdj
-      );
-    }
-
-
     //add second internal transfer to adjust for idleTokens
+        // adjusts for previous iToken redemptions
+    let iAdj = amountToRageQuit.minus(member.iTB);
+    log.info("********iAdj{}*********", [iAdj.toString()]);
+      if(iAdj > BigInt.fromI32(0)){
+        internalTransfer(
+          molochId,
+          member.memberAddress,
+          GUILD,
+          idleToken,
+          iAdj
+        );
+      }
   }
 
   addRageQuitBadge(event.params.memberAddress, event.transaction);
@@ -1000,12 +1005,13 @@ export function handleCancelProposal(event: CancelProposal): void {
 export function handleWithdrawEarnings(event: WithdrawEarnings): void {
 
   log.info(
-    "***********handleWithdraw tx {}, ammount, {}, from {}, memberAddress {}",
+    "***********handleWithdrawEarnings tx {}, iToken {}, earningsToUser {}, depositToken {}, redeemedTokens {}, memberAddress {}",
     [
       event.transaction.hash.toHex(),
+      event.params.iToken.toString(),
       event.params.earningsToUser.toString(),
+      event.params.depositToken.toString(),
       event.params.redeemedTokens.toString(),
-      event.transaction.from.toHex(),
       event.params.memberAddress.toHex(),
     ]
   );
@@ -1018,9 +1024,10 @@ export function handleWithdrawEarnings(event: WithdrawEarnings): void {
   .concat(event.params.memberAddress.toHex());
   let member = Member.load(memberId);
 
-  let idleTokenId = molochId.concat("-token-").concat(moloch.idleToken);
-  let depositTokenId = molochId.concat("-token-").concat(moloch.depositToken);
+  let iTokenId = molochId.concat("-token-").concat(event.params.iToken.toHex());
+  let dTokenId = molochId.concat("-token-").concat(event.params.depositToken.toHex());
   let redeemedTokens = event.params.redeemedTokens;
+  log.info('redeemedTokens: {}', [redeemedTokens.toString()])
   let earningsToUser = event.params.earningsToUser;
   log.info('earningsToUser: {}', [earningsToUser.toString()])
 
@@ -1042,20 +1049,20 @@ export function handleWithdrawEarnings(event: WithdrawEarnings): void {
     subtractFromBalance(
       molochId,
       GUILD,
-      idleTokenId,
-      event.params.earningsToUser
+      iTokenId,
+      earningsToUser
     );
     addToBalance(
       molochId, 
       GUILD, 
-      depositTokenId, 
+      dTokenId, 
       redeemedTokens
     );
     internalTransfer(
-      molochId,
-      GUILD,
+      molochId, 
+      GUILD, 
       event.params.memberAddress,
-      depositTokenId,
+      dTokenId, 
       redeemedTokens
     );
   }
@@ -1067,11 +1074,11 @@ export function handleWithdraw(event: Withdraw): void {
   // let memberAddress = event.params.memberAddress;
 
   log.info(
-    "***********handleWithdraw tx {}, ammount, {}, from {}, memberAddress {}",
+    "***********handleWithdraw tx {}, amount, {}, token {}, memberAddress {}",
     [
       event.transaction.hash.toHex(),
       event.params.amount.toString(),
-      event.transaction.from.toHex(),
+      event.params.token.toHex(),
       event.params.memberAddress.toHex(),
     ]
   );

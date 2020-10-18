@@ -492,12 +492,20 @@ export class WithdrawEarnings__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
+  get iToken(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
   get earningsToUser(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get depositToken(): Address {
+    return this._event.parameters[3].value.toAddress();
   }
 
   get redeemedTokens(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
+    return this._event.parameters[4].value.toBigInt();
   }
 }
 
