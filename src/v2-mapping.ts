@@ -741,8 +741,8 @@ export function handleAmendGovernance(event: ProcessAmendGovernance): void {
     proposal.didPass = true;
     //Update moloch governance
     if (proposal.governance) {
-        moloch.partyGoal = proposal.tributeOffered;
-        moloch.depositRate = proposal.paymentRequested;
+        moloch.partyGoal = proposal.sharesRequested;
+        moloch.depositRate = proposal.lootRequested;
 
         if(newIdleToken != ZERO_ADDRESS){
           moloch.idleToken = newIdleToken
@@ -899,6 +899,7 @@ export function handleRagequit(event: Ragequit): void {
 
     let balanceTimesBurn = balance.tokenBalance.times(sharesAndLootToBurn);
     let amountToRageQuit = balanceTimesBurn.div(initialTotalSharesAndLoot);
+    log.info("********Amount to RQ {}*********", [amountToRageQuit.toString()]);
     let iTB = member.iTB;
     log.info("********Member iTB {}*********", [iTB.toString()]);
 
@@ -910,9 +911,9 @@ export function handleRagequit(event: Ragequit): void {
       amountToRageQuit
     );
     //add second internal transfer to adjust for idleTokens
-        // adjusts for previous iToken redemptions
+        // adjusts for previous iToken redemptions   
     let iAdj = amountToRageQuit.minus(member.iTB);
-    log.info("********iAdj{}*********", [iAdj.toString()]);
+    log.info("******** iAdj{} *********", [iAdj.toString()]);
       if(iAdj > BigInt.fromI32(0)){
         internalTransfer(
           molochId,

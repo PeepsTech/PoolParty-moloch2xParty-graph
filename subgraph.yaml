@@ -6,7 +6,7 @@ dataSources:
     name: MolochSummoner
     network: kovan 
     source:
-      address: "0xD0Ddce7A1d194C6e69657B1E46b326FbaF4FC1D3" # kovan clone party starter
+      address: "0xe0Fe264572007dF226BE0BeaFD0ABa18625E5577" # kovan clone party starter
       abi: V2Factory
       startBlock: 20785913
     mapping:
