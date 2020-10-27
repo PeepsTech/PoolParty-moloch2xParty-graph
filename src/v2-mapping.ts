@@ -549,12 +549,7 @@ export function handleProcessProposal(event: ProcessProposal): void {
       
       newMember.loot = proposal.lootRequested;
 
-      if (proposal.sharesRequested > BigInt.fromI32(0)) {
-        newMember.exists = true;
-      } else {
-        newMember.exists = false;
-      }
-
+      newMember.exists = true;
       newMember.tokenTribute = BigInt.fromI32(0);
       newMember.didRagequit = false;
       newMember.proposedToKick = false;
