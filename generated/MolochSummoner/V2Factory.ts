@@ -71,6 +71,10 @@ export class PartyStarted__Params {
   get summoningTime(): BigInt {
     return this._event.parameters[10].value.toBigInt();
   }
+
+  get _dilutionBound(): BigInt {
+    return this._event.parameters[11].value.toBigInt();
+  }
 }
 
 export class V2Factory extends SmartContract {
@@ -87,7 +91,8 @@ export class V2Factory extends SmartContract {
     _gracePeriodLength: BigInt,
     _proposalDepositReward: BigInt,
     _depositRate: BigInt,
-    _partyGoal: BigInt
+    _partyGoal: BigInt,
+    _dilutionBound: BigInt
   ): Address {
     let result = super.call("startParty", [
       EthereumValue.fromAddressArray(_founders),
@@ -98,7 +103,8 @@ export class V2Factory extends SmartContract {
       EthereumValue.fromUnsignedBigInt(_gracePeriodLength),
       EthereumValue.fromUnsignedBigInt(_proposalDepositReward),
       EthereumValue.fromUnsignedBigInt(_depositRate),
-      EthereumValue.fromUnsignedBigInt(_partyGoal)
+      EthereumValue.fromUnsignedBigInt(_partyGoal),
+      EthereumValue.fromUnsignedBigInt(_dilutionBound)
     ]);
 
     return result[0].toAddress();
@@ -113,7 +119,8 @@ export class V2Factory extends SmartContract {
     _gracePeriodLength: BigInt,
     _proposalDepositReward: BigInt,
     _depositRate: BigInt,
-    _partyGoal: BigInt
+    _partyGoal: BigInt,
+    _dilutionBound: BigInt
   ): CallResult<Address> {
     let result = super.tryCall("startParty", [
       EthereumValue.fromAddressArray(_founders),
@@ -124,7 +131,8 @@ export class V2Factory extends SmartContract {
       EthereumValue.fromUnsignedBigInt(_gracePeriodLength),
       EthereumValue.fromUnsignedBigInt(_proposalDepositReward),
       EthereumValue.fromUnsignedBigInt(_depositRate),
-      EthereumValue.fromUnsignedBigInt(_partyGoal)
+      EthereumValue.fromUnsignedBigInt(_partyGoal),
+      EthereumValue.fromUnsignedBigInt(_dilutionBound)
     ]);
     if (result.reverted) {
       return new CallResult();
@@ -230,6 +238,10 @@ export class StartPartyCall__Inputs {
 
   get _partyGoal(): BigInt {
     return this._call.inputValues[8].value.toBigInt();
+  }
+
+  get _dilutionBound(): BigInt {
+    return this._call.inputValues[9].value.toBigInt();
   }
 }
 

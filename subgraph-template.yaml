@@ -6,7 +6,7 @@ dataSources:
     name: MolochSummoner
     network: kovan 
     source:
-      address: "0x0275A75962D252955C22d33087875BC1B214e2A5" # kovan clone party starter
+      address: "0x29ACea0B0164f083BC6B7E0969a6a4023f7382B6" # kovan clone party starter
       abi: V2Factory
       startBlock: 20785913
     mapping:
@@ -23,7 +23,7 @@ dataSources:
         - name: Erc20Bytes32
           file: ./abis/Erc20Bytes32.json
       eventHandlers:
-        - event: PartyStarted(indexed address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+        - event: PartyStarted(indexed address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleSummoned
       file: ./src/factory-mapping.ts
 templates:

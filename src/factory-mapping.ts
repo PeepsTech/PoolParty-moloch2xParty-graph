@@ -59,7 +59,7 @@ export function handleSummoned(event: PartyStarted): void {
   moloch.votingPeriodLength = event.params._votingPeriodLength;
   moloch.gracePeriodLength = event.params._gracePeriodLength;
   moloch.proposalDepositReward = event.params._proposalDepositReward;
-  moloch.dilutionBound = BigInt.fromI32(5);
+  moloch.dilutionBound = event.params._dilutionBound;
   moloch.approvedTokens = approvedTokens;
   moloch.guildTokenBalance = guildTokenBalance;
   moloch.escrowTokenBalance = escrowTokenBalance;

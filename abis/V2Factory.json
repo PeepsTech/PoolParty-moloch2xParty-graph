@@ -79,6 +79,12 @@
 				"internalType": "uint256",
 				"name": "summoningTime",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "_dilutionBound",
+				"type": "uint256"
 			}
 		],
 		"name": "PartyStarted",
@@ -131,12 +137,17 @@
 				"internalType": "uint256",
 				"name": "_partyGoal",
 				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_dilutionBound",
+				"type": "uint256"
 			}
 		],
 		"name": "startParty",
 		"outputs": [
 			{
-				"internalType": "contract Party",
+				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
