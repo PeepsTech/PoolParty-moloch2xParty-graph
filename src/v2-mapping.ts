@@ -283,9 +283,9 @@ export function handleMakeDeposit(event: MakeDeposit): void {
   //update moloch
   let totalDeposits = moloch.totalDeposits;
   let goalHit = event.params.goalHit;
+  log.info("***Goal Hit {}***", [goalHit.toString()]);
 
   moloch.totalShares = moloch.totalShares.plus(event.params.shares);
-  moloch.idleAvgCost = event.params.idleAvgCost;
   moloch.totalDeposits = totalDeposits.plus(tribute);
 
   if(goalHit == 1){
@@ -548,7 +548,6 @@ export function handleProcessProposal(event: ProcessProposal): void {
       }
       
       newMember.loot = proposal.lootRequested;
-
       newMember.exists = true;
       newMember.tokenTribute = BigInt.fromI32(0);
       newMember.didRagequit = false;
@@ -729,21 +728,57 @@ export function handleAmendGovernance(event: ProcessAmendGovernance): void {
 
   // Adds new token to tokenWhitelist
   let newApprToken = proposal.tributeToken.toHex();
+  log.info("***new Token {}", [newApprToken.toString()]);
   let newIdleToken = proposal.paymentToken.toHex();
+  log.info("***new Idle {}", [newIdleToken.toString()]);
+  let depositToken = moloch.depositToken
+  let idleToken = moloch.idleToken
 
 
   if (event.params.didPass) {
     proposal.didPass = true;
     //Update moloch governance
     if (proposal.governance) {
-        moloch.partyGoal = proposal.sharesRequested;
-        moloch.depositRate = proposal.lootRequested;
 
-        if(newIdleToken != ZERO_ADDRESS){
-          moloch.idleToken = newIdleToken
+        let newPartyGoal = proposal.tributeOffered;
+        if (newPartyGoal > BigInt.fromI32(0)) {
+          moloch.partyGoal = newPartyGoal;
+          log.info("*****Moloch Goal {}", [moloch.partyGoal.toString()]);
         }
-        
-        if(newApprToken != ZERO_ADDRESS){
+        log.info("*****Party Goal {}", [newPartyGoal.toString()]);
+
+        let newDepositRate = proposal.paymentRequested
+        if (newDepositRate > BigInt.fromI32(0)) {
+          moloch.depositRate = newDepositRate;
+        }
+        log.info("***Deposit Rate {}***", [newDepositRate.toString()]);
+
+        // if(newIdleToken != ZERO_ADDRESS || newIdleToken != depositToken || newIdleToken != idleToken){
+        //   // Set New Idle Token 
+        //   moloch.idleToken = newIdleToken;
+        //   log.info("***Moloch Idle {}***", [moloch.idleToken.toString()]);
+          
+        //   // Add to Whitelist
+        //   let approvedTokens = moloch.approvedTokens;
+        //   approvedTokens.push(
+        //     createAndApproveToken(molochId, proposal.paymentToken)
+        //   );
+        //   moloch.approvedTokens = approvedTokens;
+      
+        //   let escrowTokens = moloch.escrowTokenBalance;
+        //   escrowTokens.push(
+        //     createEscrowTokenBalance(molochId, proposal.paymentToken)
+        //   );
+        //   moloch.escrowTokenBalance = escrowTokens;
+      
+        //   let guildTokens = moloch.guildTokenBalance;
+        //   guildTokens.push(
+        //     createGuildTokenBalance(molochId, proposal.paymentToken)
+        //   );
+        //   moloch.guildTokenBalance = guildTokens;
+        // } 
+
+        if(newApprToken != ZERO_ADDRESS && newApprToken != depositToken){
   
           let approvedTokens = moloch.approvedTokens;
           approvedTokens.push(

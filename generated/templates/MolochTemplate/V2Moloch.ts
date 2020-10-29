@@ -66,12 +66,8 @@ export class MakeDeposit__Params {
     return this._event.parameters[3].value.toBigInt();
   }
 
-  get idleAvgCost(): BigInt {
-    return this._event.parameters[4].value.toBigInt();
-  }
-
   get goalHit(): i32 {
-    return this._event.parameters[5].value.toI32();
+    return this._event.parameters[4].value.toI32();
   }
 }
 
@@ -626,93 +622,49 @@ export class V2Moloch extends SmartContract {
     return new V2Moloch("V2Moloch", address);
   }
 
-  checkGoal(): i32 {
-    let result = super.call("checkGoal", []);
+  ESCROW(): Address {
+    let result = super.call("ESCROW", []);
 
-    return result[0].toI32();
+    return result[0].toAddress();
   }
 
-  try_checkGoal(): CallResult<i32> {
-    let result = super.tryCall("checkGoal", []);
+  try_ESCROW(): CallResult<Address> {
+    let result = super.tryCall("ESCROW", []);
     if (result.reverted) {
       return new CallResult();
     }
     let value = result.value;
-    return CallResult.fromValue(value[0].toI32());
+    return CallResult.fromValue(value[0].toAddress());
   }
 
-  getUserEarnings(amount: BigInt): BigInt {
-    let result = super.call("getUserEarnings", [
-      EthereumValue.fromUnsignedBigInt(amount)
-    ]);
+  GUILD(): Address {
+    let result = super.call("GUILD", []);
 
-    return result[0].toBigInt();
+    return result[0].toAddress();
   }
 
-  try_getUserEarnings(amount: BigInt): CallResult<BigInt> {
-    let result = super.tryCall("getUserEarnings", [
-      EthereumValue.fromUnsignedBigInt(amount)
-    ]);
+  try_GUILD(): CallResult<Address> {
+    let result = super.tryCall("GUILD", []);
     if (result.reverted) {
       return new CallResult();
     }
     let value = result.value;
-    return CallResult.fromValue(value[0].toBigInt());
+    return CallResult.fromValue(value[0].toAddress());
   }
 
-  submitProposal(
-    applicant: Address,
-    tributeOffered: BigInt,
-    sharesRequested: BigInt,
-    lootRequested: BigInt,
-    paymentRequested: BigInt,
-    flagNumber: BigInt,
-    tributeToken: Address,
-    paymentToken: Address,
-    details: Bytes
-  ): BigInt {
-    let result = super.call("submitProposal", [
-      EthereumValue.fromAddress(applicant),
-      EthereumValue.fromUnsignedBigInt(tributeOffered),
-      EthereumValue.fromUnsignedBigInt(sharesRequested),
-      EthereumValue.fromUnsignedBigInt(lootRequested),
-      EthereumValue.fromUnsignedBigInt(paymentRequested),
-      EthereumValue.fromUnsignedBigInt(flagNumber),
-      EthereumValue.fromAddress(tributeToken),
-      EthereumValue.fromAddress(paymentToken),
-      EthereumValue.fromFixedBytes(details)
-    ]);
+  TOTAL(): Address {
+    let result = super.call("TOTAL", []);
 
-    return result[0].toBigInt();
+    return result[0].toAddress();
   }
 
-  try_submitProposal(
-    applicant: Address,
-    tributeOffered: BigInt,
-    sharesRequested: BigInt,
-    lootRequested: BigInt,
-    paymentRequested: BigInt,
-    flagNumber: BigInt,
-    tributeToken: Address,
-    paymentToken: Address,
-    details: Bytes
-  ): CallResult<BigInt> {
-    let result = super.tryCall("submitProposal", [
-      EthereumValue.fromAddress(applicant),
-      EthereumValue.fromUnsignedBigInt(tributeOffered),
-      EthereumValue.fromUnsignedBigInt(sharesRequested),
-      EthereumValue.fromUnsignedBigInt(lootRequested),
-      EthereumValue.fromUnsignedBigInt(paymentRequested),
-      EthereumValue.fromUnsignedBigInt(flagNumber),
-      EthereumValue.fromAddress(tributeToken),
-      EthereumValue.fromAddress(paymentToken),
-      EthereumValue.fromFixedBytes(details)
-    ]);
+  try_TOTAL(): CallResult<Address> {
+    let result = super.tryCall("TOTAL", []);
     if (result.reverted) {
       return new CallResult();
     }
     let value = result.value;
-    return CallResult.fromValue(value[0].toBigInt());
+    return CallResult.fromValue(value[0].toAddress());
   }
 
   actions(param0: BigInt): Bytes {
@@ -772,6 +724,21 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toBoolean());
   }
 
+  checkGoal(): i32 {
+    let result = super.call("checkGoal", []);
+
+    return result[0].toI32();
+  }
+
+  try_checkGoal(): CallResult<i32> {
+    let result = super.tryCall("checkGoal", []);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toI32());
+  }
+
   daoFee(): Address {
     let result = super.call("daoFee", []);
 
@@ -817,19 +784,19 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toAddress());
   }
 
-  ESCROW(): Address {
-    let result = super.call("ESCROW", []);
+  dilutionBound(): BigInt {
+    let result = super.call("dilutionBound", []);
 
-    return result[0].toAddress();
+    return result[0].toBigInt();
   }
 
-  try_ESCROW(): CallResult<Address> {
-    let result = super.tryCall("ESCROW", []);
+  try_dilutionBound(): CallResult<BigInt> {
+    let result = super.tryCall("dilutionBound", []);
     if (result.reverted) {
       return new CallResult();
     }
     let value = result.value;
-    return CallResult.fromValue(value[0].toAddress());
+    return CallResult.fromValue(value[0].toBigInt());
   }
 
   getCurrentPeriod(): BigInt {
@@ -939,6 +906,25 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toBigInt());
   }
 
+  getUserEarnings(amount: BigInt): BigInt {
+    let result = super.call("getUserEarnings", [
+      EthereumValue.fromUnsignedBigInt(amount)
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_getUserEarnings(amount: BigInt): CallResult<BigInt> {
+    let result = super.tryCall("getUserEarnings", [
+      EthereumValue.fromUnsignedBigInt(amount)
+    ]);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toBigInt());
+  }
+
   getUserTokenBalance(user: Address, token: Address): BigInt {
     let result = super.call("getUserTokenBalance", [
       EthereumValue.fromAddress(user),
@@ -988,21 +974,6 @@ export class V2Moloch extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(value[0].toBigInt());
-  }
-
-  GUILD(): Address {
-    let result = super.call("GUILD", []);
-
-    return result[0].toAddress();
-  }
-
-  try_GUILD(): CallResult<Address> {
-    let result = super.tryCall("GUILD", []);
-    if (result.reverted) {
-      return new CallResult();
-    }
-    let value = result.value;
-    return CallResult.fromValue(value[0].toAddress());
   }
 
   hasVotingPeriodExpired(startingPeriod: BigInt): boolean {
@@ -1272,6 +1243,61 @@ export class V2Moloch extends SmartContract {
     return CallResult.fromValue(value[0].toBoolean());
   }
 
+  submitProposal(
+    applicant: Address,
+    tributeOffered: BigInt,
+    sharesRequested: BigInt,
+    lootRequested: BigInt,
+    paymentRequested: BigInt,
+    flagNumber: BigInt,
+    tributeToken: Address,
+    paymentToken: Address,
+    details: Bytes
+  ): BigInt {
+    let result = super.call("submitProposal", [
+      EthereumValue.fromAddress(applicant),
+      EthereumValue.fromUnsignedBigInt(tributeOffered),
+      EthereumValue.fromUnsignedBigInt(sharesRequested),
+      EthereumValue.fromUnsignedBigInt(lootRequested),
+      EthereumValue.fromUnsignedBigInt(paymentRequested),
+      EthereumValue.fromUnsignedBigInt(flagNumber),
+      EthereumValue.fromAddress(tributeToken),
+      EthereumValue.fromAddress(paymentToken),
+      EthereumValue.fromFixedBytes(details)
+    ]);
+
+    return result[0].toBigInt();
+  }
+
+  try_submitProposal(
+    applicant: Address,
+    tributeOffered: BigInt,
+    sharesRequested: BigInt,
+    lootRequested: BigInt,
+    paymentRequested: BigInt,
+    flagNumber: BigInt,
+    tributeToken: Address,
+    paymentToken: Address,
+    details: Bytes
+  ): CallResult<BigInt> {
+    let result = super.tryCall("submitProposal", [
+      EthereumValue.fromAddress(applicant),
+      EthereumValue.fromUnsignedBigInt(tributeOffered),
+      EthereumValue.fromUnsignedBigInt(sharesRequested),
+      EthereumValue.fromUnsignedBigInt(lootRequested),
+      EthereumValue.fromUnsignedBigInt(paymentRequested),
+      EthereumValue.fromUnsignedBigInt(flagNumber),
+      EthereumValue.fromAddress(tributeToken),
+      EthereumValue.fromAddress(paymentToken),
+      EthereumValue.fromFixedBytes(details)
+    ]);
+    if (result.reverted) {
+      return new CallResult();
+    }
+    let value = result.value;
+    return CallResult.fromValue(value[0].toBigInt());
+  }
+
   summoningTime(): BigInt {
     let result = super.call("summoningTime", []);
 
@@ -1304,21 +1330,6 @@ export class V2Moloch extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(value[0].toBoolean());
-  }
-
-  TOTAL(): Address {
-    let result = super.call("TOTAL", []);
-
-    return result[0].toAddress();
-  }
-
-  try_TOTAL(): CallResult<Address> {
-    let result = super.tryCall("TOTAL", []);
-    if (result.reverted) {
-      return new CallResult();
-    }
-    let value = result.value;
-    return CallResult.fromValue(value[0].toAddress());
   }
 
   totalDeposits(): BigInt {
@@ -1578,6 +1589,10 @@ export class InitCall__Inputs {
 
   get _partyGoal(): BigInt {
     return this._call.inputValues[8].value.toBigInt();
+  }
+
+  get _dilutionBound(): BigInt {
+    return this._call.inputValues[9].value.toBigInt();
   }
 }
 

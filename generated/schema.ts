@@ -148,15 +148,6 @@ export class Moloch extends Entity {
     this.set("proposalDepositReward", Value.fromBigInt(value));
   }
 
-  get dilutionBound(): BigInt {
-    let value = this.get("dilutionBound");
-    return value.toBigInt();
-  }
-
-  set dilutionBound(value: BigInt) {
-    this.set("dilutionBound", Value.fromBigInt(value));
-  }
-
   get depositToken(): string {
     let value = this.get("depositToken");
     return value.toString();
@@ -243,23 +234,6 @@ export class Moloch extends Entity {
 
   set goalHit(value: boolean) {
     this.set("goalHit", Value.fromBoolean(value));
-  }
-
-  get idleAvgCost(): BigInt | null {
-    let value = this.get("idleAvgCost");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set idleAvgCost(value: BigInt | null) {
-    if (value === null) {
-      this.unset("idleAvgCost");
-    } else {
-      this.set("idleAvgCost", Value.fromBigInt(value as BigInt));
-    }
   }
 
   get daoFee(): string | null {

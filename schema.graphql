@@ -10,7 +10,6 @@ type Moloch @entity {
   votingPeriodLength: BigInt!
   gracePeriodLength: BigInt!
   proposalDepositReward: BigInt!
-  dilutionBound: BigInt!
   depositToken: Token!
   idleToken: Token!
   approvedTokens: [Token!]!
@@ -19,7 +18,6 @@ type Moloch @entity {
   partyGoal: BigInt!
   totalDeposits: BigInt
   goalHit: Boolean
-  idleAvgCost: BigInt
   daoFee: String
   tokens: [Token!] @derivedFrom(field: "moloch")
   members: [Member!] @derivedFrom(field: "moloch")

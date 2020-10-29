@@ -79,12 +79,6 @@
         "internalType": "uint256",
         "name": "summoningTime",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_dilutionBound",
-        "type": "uint256"
       }
     ],
     "name": "PartyStarted",

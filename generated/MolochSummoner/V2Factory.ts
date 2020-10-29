@@ -71,10 +71,6 @@ export class PartyStarted__Params {
   get summoningTime(): BigInt {
     return this._event.parameters[10].value.toBigInt();
   }
-
-  get _dilutionBound(): BigInt {
-    return this._event.parameters[11].value.toBigInt();
-  }
 }
 
 export class V2Factory extends SmartContract {
