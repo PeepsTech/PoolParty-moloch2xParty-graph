@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: MolochSummoner
-    network: kovan
+    network: mainnet
     source:
-      address: "0xd46235d4e5f4446E67636FC86D297Eae3dD3C654"
+      address: "0x206b1b56032cc6e6b857425A69c680E8cA606F70"
       abi: V2Factory
-      startBlock: 20785913
+      startBlock: 11149112
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -30,7 +30,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: MolochTemplate
-    network: kovan
+    network: mainnet
     source:
       abi: V2Moloch
     mapping:
