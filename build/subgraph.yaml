@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: MolochSummoner
-    network: mainnet
+    network: kovan
     source:
-      address: "0x206b1b56032cc6e6b857425A69c680E8cA606F70"
+      address: "0xd46235d4e5f4446E67636FC86D297Eae3dD3C654"
       abi: V2Factory
       startBlock: 11149112
     mapping:
@@ -27,10 +27,35 @@ dataSources:
             address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleSummoned
       file: MolochSummoner/MolochSummoner.wasm
+  - kind: ethereum/contract
+    name: WETHMolochSummoner
+    network: kovan
+    source:
+      address: "0x08269F32bF08FF148ab678DF4fcc05189f5E201C"
+      abi: V2Factory
+      startBlock: 11149112
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Moloch
+      abis:
+        - name: V2Factory
+          file: WETHMolochSummoner/abis/V2Factory.json
+        - name: Erc20
+          file: WETHMolochSummoner/abis/Erc20.json
+        - name: Erc20Bytes32
+          file: WETHMolochSummoner/abis/Erc20Bytes32.json
+      eventHandlers:
+        - event: PartyStarted(indexed
+            address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleWETHSummoned
+      file: MolochSummoner/MolochSummoner.wasm
 templates:
   - kind: ethereum/contract
     name: MolochTemplate
-    network: mainnet
+    network: kovan
     source:
       abi: V2Moloch
     mapping:
@@ -43,7 +68,6 @@ templates:
         - TokenBalance
         - Token
         - Member
-        - Vote
         - Proposal
         - Badge
       abis:
@@ -77,10 +101,10 @@ templates:
           handler: handleUpdateDelegateKey
         - event: CancelProposal(indexed uint256,address)
           handler: handleCancelProposal
-        - event: Withdraw(indexed address,address,uint256)
-          handler: handleWithdraw
         - event: WithdrawEarnings(indexed address,address,uint256,address,uint256)
           handler: handleWithdrawEarnings
+        - event: Withdraw(indexed address,address,uint256)
+          handler: handleWithdraw
         - event: Ragequit(indexed address,uint256,uint256)
           handler: handleRagequit
         - event: TokensCollected(indexed address,uint256)
