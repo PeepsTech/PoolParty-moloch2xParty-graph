@@ -17,7 +17,7 @@ import {
 import { Erc20 } from "../generated/templates/MolochTemplate/Erc20";
 import { Erc20Bytes32 } from "../generated/templates/MolochTemplate/Erc20Bytes32";
 import { PartyStarted } from "../generated/MolochSummoner/V2Factory";
-import { PartyStarted as WETHPartyStarted } from "../generated/WETHMolochSummoner/V2Factory";
+import { PartyStarted as WETHPartyStarted } from "../generated/WETHMolochSummoner/WETHFactory";
 
 
 import {
@@ -719,7 +719,16 @@ export function handleProcessProposal(event: ProcessProposal): void {
     }
 
     //NOTE: check if user has a tokenBalance for that token if not then create one before sending
-    if(proposal.paymentToken.toHex() != moloch.depositToken || moloch.depositToken == WETH.toString()) {
+    if(proposal.paymentToken.toHex() != moloch.depositToken) {
+      internalTransfer(
+        molochId,
+        GUILD,
+        proposal.applicant,
+        paymentTokenId,
+        proposal.paymentRequested
+      );
+    }
+    if(proposal.paymentToken.toString() == WETH.toString() && moloch.depositToken == WETH.toString()) {
       internalTransfer(
         molochId,
         GUILD,

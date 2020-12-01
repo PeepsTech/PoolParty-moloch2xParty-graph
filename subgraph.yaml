@@ -31,9 +31,9 @@ dataSources:
     name: WETHMolochSummoner
     network: kovan 
     source:
-      address: "0x08269F32bF08FF148ab678DF4fcc05189f5E201C" # kovan WETH party starter
+      address: "0x83398FbE8D1050C9C6a821D6B50727334CAbA2Ea" # kovan WETH party starter
       #address: "0x206b1b56032cc6e6b857425A69c680E8cA606F70" #mainnet
-      abi: V2Factory
+      abi: WETHFactory
       startBlock: 11149112
     mapping:
       kind: ethereum/events
@@ -42,14 +42,14 @@ dataSources:
       entities:
         - Moloch
       abis:
-        - name: V2Factory
-          file: ./abis/V2Factory.json
+        - name: WETHFactory
+          file: ./abis/WETHFactory.json
         - name: Erc20
           file: ./abis/Erc20.json
         - name: Erc20Bytes32
           file: ./abis/Erc20Bytes32.json
       eventHandlers:
-        - event: PartyStarted(indexed address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+        - event: PartyStarted(indexed address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleWETHSummoned
       file: ./src/factory-mapping.ts      
 templates:

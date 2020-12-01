@@ -1,6 +1,6 @@
 import { BigInt, log, Address, Bytes } from "@graphprotocol/graph-ts";
 import { PartyStarted } from "../generated/MolochSummoner/V2Factory";
-import { PartyStarted as WETHPartyStarted } from "../generated/WETHMolochSummoner/V2Factory";
+import { PartyStarted as WETHPartyStarted } from "../generated/WETHMolochSummoner/WETHFactory";
 
 import { MolochTemplate } from "../generated/templates";
 import { Moloch } from "../generated/schema";
