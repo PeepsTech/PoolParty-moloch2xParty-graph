@@ -28,6 +28,31 @@ dataSources:
           handler: handleSummoned
       file: MolochSummoner/MolochSummoner.wasm
   - kind: ethereum/contract
+    name: MolochSummoner2
+    network: kovan
+    source:
+      address: "0x331709d30725092357A13F809BBDc9A8Daae39F0"
+      abi: V2Factory
+      startBlock: 11149112
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Moloch
+      abis:
+        - name: V2Factory
+          file: MolochSummoner2/abis/V2Factory.json
+        - name: Erc20
+          file: MolochSummoner2/abis/Erc20.json
+        - name: Erc20Bytes32
+          file: MolochSummoner2/abis/Erc20Bytes32.json
+      eventHandlers:
+        - event: PartyStarted(indexed
+            address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleSummoned2
+      file: MolochSummoner/MolochSummoner.wasm
+  - kind: ethereum/contract
     name: WETHMolochSummoner
     network: kovan
     source:
@@ -51,6 +76,31 @@ dataSources:
         - event: PartyStarted(indexed
             address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleWETHSummoned
+      file: MolochSummoner/MolochSummoner.wasm
+  - kind: ethereum/contract
+    name: NOFIMolochSummoner
+    network: kovan
+    source:
+      address: "0x7836b5DB863Db6731767b3b7b0344661C5c4C732"
+      abi: NOFIFactory
+      startBlock: 11149112
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Moloch
+      abis:
+        - name: NOFIFactory
+          file: NOFIMolochSummoner/abis/WETHFactory.json
+        - name: Erc20
+          file: NOFIMolochSummoner/abis/Erc20.json
+        - name: Erc20Bytes32
+          file: NOFIMolochSummoner/abis/Erc20Bytes32.json
+      eventHandlers:
+        - event: PartyStarted(indexed
+            address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleNOFISummoned
       file: MolochSummoner/MolochSummoner.wasm
 templates:
   - kind: ethereum/contract

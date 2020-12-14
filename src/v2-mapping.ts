@@ -17,7 +17,10 @@ import {
 import { Erc20 } from "../generated/templates/MolochTemplate/Erc20";
 import { Erc20Bytes32 } from "../generated/templates/MolochTemplate/Erc20Bytes32";
 import { PartyStarted } from "../generated/MolochSummoner/V2Factory";
+import { PartyStarted as PartyStarted2 } from "../generated/MolochSummoner2/V2Factory";
 import { PartyStarted as WETHPartyStarted } from "../generated/WETHMolochSummoner/WETHFactory";
+import { PartyStarted as NOFIPartyStarted } from "../generated/NOFIMolochSummoner/NOFIFactory";
+
 
 
 import {
@@ -265,10 +268,110 @@ export function createAndAddSummoner(
   return memberId;
 }
 
+export function createAndAddSummoner2(
+  molochId: string,
+  founder: Address,
+  event: PartyStarted2,
+): string {
+
+  let memberId = molochId.concat("-member-").concat(founder.toHex());
+  log.info('My MolochId is: {}', [molochId])
+  let member = new Member(memberId);
+  log.info('My memberId is: {}', [memberId])
+  
+
+  member.moloch = molochId;
+  log.info('My moloch is: {}', [molochId])
+  member.createdAt = event.block.timestamp.toString();
+  member.molochAddress = event.params.pty;
+  member.memberAddress = founder;
+  member.shares = BigInt.fromI32(0);
+  member.loot = BigInt.fromI32(0);
+  member.tokenTribute = BigInt.fromI32(0);
+  member.iTB = BigInt.fromI32(0);
+  member.iTW = BigInt.fromI32(0);
+  member.iVal = BigInt.fromI32(0);
+  member.didRagequit = false;
+  member.exists = true;
+  member.proposedToKick = false;
+  member.kicked = false;
+
+  //Set summoner summoner balances for approved tokens to zero
+   let tokens = event.params._approvedTokens;
+   
+   for (let i = 0; i < tokens.length; i++) {
+     let token = tokens[i];
+     log.info('My token is: {}', [token.toHex()])
+     let tokenId = molochId.concat("-token-").concat(token.toHex());
+     createMemberTokenBalance(
+       molochId,
+       founder,
+       tokenId,
+       BigInt.fromI32(0)
+     );
+   }
+  
+  member.save();
+
+  addMembershipBadge(founder);
+
+  return memberId;
+}
+
 export function createAndAddWETHSummoner(
   molochId: string,
   founder: Address,
   event: WETHPartyStarted,
+): string {
+
+  let memberId = molochId.concat("-member-").concat(founder.toHex());
+  log.info('My MolochId is: {}', [molochId])
+  let member = new Member(memberId);
+  log.info('My memberId is: {}', [memberId])
+  
+
+  member.moloch = molochId;
+  log.info('My moloch is: {}', [molochId])
+  member.createdAt = event.block.timestamp.toString();
+  member.molochAddress = event.params.pty;
+  member.memberAddress = founder;
+  member.shares = BigInt.fromI32(0);
+  member.loot = BigInt.fromI32(0);
+  member.tokenTribute = BigInt.fromI32(0);
+  member.iTB = BigInt.fromI32(0);
+  member.iTW = BigInt.fromI32(0);
+  member.iVal = BigInt.fromI32(0);
+  member.didRagequit = false;
+  member.exists = true;
+  member.proposedToKick = false;
+  member.kicked = false;
+
+  //Set summoner summoner balances for approved tokens to zero
+   let tokens = event.params._approvedTokens;
+   
+   for (let i = 0; i < tokens.length; i++) {
+     let token = tokens[i];
+     log.info('My token is: {}', [token.toHex()])
+     let tokenId = molochId.concat("-token-").concat(token.toHex());
+     createMemberTokenBalance(
+       molochId,
+       founder,
+       tokenId,
+       BigInt.fromI32(0)
+     );
+   }
+  
+  member.save();
+
+  addMembershipBadge(founder);
+
+  return memberId;
+}
+
+export function createAndAddNOFISummoner(
+  molochId: string,
+  founder: Address,
+  event: NOFIPartyStarted,
 ): string {
 
   let memberId = molochId.concat("-member-").concat(founder.toHex());
@@ -655,15 +758,17 @@ export function handleProcessProposal(event: ProcessProposal): void {
         addMembershipBadge(proposal.applicant);
       }
 
-      if (proposal.tributeToken.toString() == WETH.toString() && moloch.depositToken == WETH.toString()) {
+      if (moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
         newMember.moloch = molochId;
         newMember.createdAt = event.block.timestamp.toString();
         newMember.molochAddress = event.address;
         newMember.memberAddress = proposal.applicant;
+        newMember.tokenTribute = proposal.tributeOffered;
         log.info("***Member Address {}***", [newMember.memberAddress.toString()]);
         newMember.loot = proposal.lootRequested;
-        newMember.shares = proposal.sharesRequested;
         log.info("***Loot {}***", [newMember.loot.toString()]);
+        newMember.shares = proposal.sharesRequested;
+        log.info("***Shares {}***", [newMember.shares.toString()]);
         newMember.exists = true;
         newMember.tokenTribute = proposal.tributeOffered;
         log.info("***Proposal Token Tribute {}***", [newMember.tokenTribute.toString()]);
@@ -696,12 +801,12 @@ export function handleProcessProposal(event: ProcessProposal): void {
     moloch.totalLoot = moloch.totalLoot.plus(proposal.lootRequested);
 
     // NOTE: Adjust total deposits, which is used as an earnings peg in WETHParty
-    if(proposal.paymentToken.toString() == WETH.toString() && moloch.depositToken == WETH.toString()){
+    if(moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty"){
       let totalDeposits = moloch.totalDeposits;
       moloch.totalDeposits = totalDeposits.minus(proposal.tributeOffered);
     }
 
-    if(proposal.tributeToken.toHex() != moloch.depositToken || moloch.depositToken == WETH.toString()){
+    if(proposal.tributeToken.toHex() != moloch.depositToken || moloch.version.toString() =="2xWETHParty" || moloch.version.toString() =="2xNOFIParty" ){
       internalTransfer(
         molochId,
         ESCROW,
@@ -728,7 +833,7 @@ export function handleProcessProposal(event: ProcessProposal): void {
         proposal.paymentRequested
       );
     }
-    if(proposal.paymentToken.toString() == WETH.toString() && moloch.depositToken == WETH.toString()) {
+    if(moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
       internalTransfer(
         molochId,
         GUILD,
@@ -1094,8 +1199,8 @@ export function handleRagequit(event: Ragequit): void {
           );
         }
      }  
-
-  if (moloch.idleToken == WETH.toString()) {
+  // Use iTW for adjustments in WETHParty and NOFIParty
+  if (moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
     let iAdj = amountToRageQuit.minus(member.iTW);
     log.info("******** iAdj{} *********", [iAdj.toString()]);
       if(iAdj > BigInt.fromI32(0)){
@@ -1107,8 +1212,8 @@ export function handleRagequit(event: Ragequit): void {
           iAdj
         );
       }
-        // in WETHParty totalDeposits is used to track peg for earnings 
-    if (moloch.idleToken == WETH.toString()) {
+    // In WETHParty totalDeposits is used to track peg for earnings 
+    if (moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
       let totalDeposits = moloch.totalDeposits;
       moloch.totalDeposits = totalDeposits.minus(amountToRageQuit);
     }
@@ -1258,8 +1363,8 @@ export function handleWithdrawEarnings(event: WithdrawEarnings): void {
     );
   }
 
-  // in WETHParty totalDeposits is used to track peg for earnings 
-  if (moloch.idleToken == WETH.toString()) {
+  // in WETHParty and NOFIParty totalDeposits is used to track peg for earnings 
+  if (moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
     let totalDeposits = moloch.totalDeposits;
     moloch.totalDeposits = totalDeposits.minus(earningsToUser);
   }
