@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: MolochSummoner
-    network: kovan 
-    #network: mainnet 
+    #network: kovan 
+    network: mainnet 
     source:
-      address: "0xd46235d4e5f4446E67636FC86D297Eae3dD3C654" # kovan clone party starter
-      #address: "0x206b1b56032cc6e6b857425A69c680E8cA606F70" #mainnet
+      #address: "0xd46235d4e5f4446E67636FC86D297Eae3dD3C654" # kovan clone party starter
+      address: "0x206b1b56032cc6e6b857425A69c680E8cA606F70" #mainnet
       abi: V2Factory
       startBlock: 11149112
     mapping:
@@ -30,8 +30,8 @@ dataSources:
       file: ./src/factory-mapping.ts
   - kind: ethereum/contract
     name: MolochSummoner2
-    network: kovan
-    #network: mainnet 
+    #network: kovan
+    network: mainnet 
     source:
       address: "0x331709d30725092357A13F809BBDc9A8Daae39F0" # kovan clone party starter
       #address: "" #mainnet updated
@@ -56,11 +56,11 @@ dataSources:
       file: ./src/factory-mapping.ts    
   - kind: ethereum/contract
     name: WETHMolochSummoner
-    network: kovan
-    #network: mainnet 
+    #network: kovan
+    network: mainnet 
     source:
-      address: "0x83398FbE8D1050C9C6a821D6B50727334CAbA2Ea" # kovan WETH party starter
-      #address: "0x86D2c31d28868530D204b598bd143Bc567a6aE15" #mainnet
+      #address: "0x83398FbE8D1050C9C6a821D6B50727334CAbA2Ea" # kovan WETH party starter
+      address: "0x86D2c31d28868530D204b598bd143Bc567a6aE15" #mainnet
       abi: WETHFactory
       startBlock: 11149112
     mapping:
@@ -79,14 +79,40 @@ dataSources:
       eventHandlers:
         - event: PartyStarted(indexed address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleWETHSummoned
-      file: ./src/factory-mapping.ts   
+      file: ./src/factory-mapping.ts
+  - kind: ethereum/contract
+    name: WETHMolochSummoner2
+    network: mainnet
+    #network: mainnet 
+    source:
+      #address: "0xE29F5F5116e368161baC47721fC11d9813538f31" # kovan WETH party starter 2
+      address: "0x53A7d3eF2c050bbA285E2f09059b6245C6AE4Fe7" #mainnet
+      abi: WETHFactory2
+      startBlock: 11149112
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Moloch
+      abis:
+        - name: WETHFactory2
+          file: ./abis/WETHFactory2.json
+        - name: Erc20
+          file: ./abis/Erc20.json
+        - name: Erc20Bytes32
+          file: ./abis/Erc20Bytes32.json
+      eventHandlers:
+        - event: PartyStarted(indexed address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleWETH2Summoned
+      file: ./src/factory-mapping.ts           
   - kind: ethereum/contract
     name: NOFIMolochSummoner
     network: kovan 
     #network: mainnet 
     source:
-      address: "0x7836b5DB863Db6731767b3b7b0344661C5c4C732" # kovan WETH party starter
-      #address: "0x86D2c31d28868530D204b598bd143Bc567a6aE15" #mainnet
+      address: "0xd9153c72a6e1f6F362B13b6891B840e99AD46561" # kovan NOFI party starter
+      #address: "" #mainnet
       abi: NOFIFactory
       startBlock: 11149112
     mapping:

@@ -12,13 +12,14 @@ import {
   CancelProposal,
   Withdraw,
   TokensCollected,
-  WithdrawEarnings,
+  WithdrawEarnings
 } from "../generated/templates/MolochTemplate/V2Moloch";
 import { Erc20 } from "../generated/templates/MolochTemplate/Erc20";
 import { Erc20Bytes32 } from "../generated/templates/MolochTemplate/Erc20Bytes32";
 import { PartyStarted } from "../generated/MolochSummoner/V2Factory";
 import { PartyStarted as PartyStarted2 } from "../generated/MolochSummoner2/V2Factory";
 import { PartyStarted as WETHPartyStarted } from "../generated/WETHMolochSummoner/WETHFactory";
+import { PartyStarted as WETHPartyStarted2 } from "../generated/WETHMolochSummoner2/WETHFactory2";
 import { PartyStarted as NOFIPartyStarted } from "../generated/NOFIMolochSummoner/NOFIFactory";
 
 
@@ -76,7 +77,7 @@ function addToBalance(
     token
   );
   balance.tokenBalance = balance.tokenBalance.plus(amount);
-  log.info('add - token balance: {}', [balance.tokenBalance.toString()])
+  log.info('add - token balance: {}, {}', [balance.tokenBalance.toString(), tokenBalanceId.toString()])
   balance.save();
   return tokenBalanceId;
 }
@@ -94,7 +95,7 @@ function subtractFromBalance(
   );
 
     balance.tokenBalance = balance.tokenBalance.minus(amount);
-    log.info('sub - token balance: {}', [balance.tokenBalance.toString()])
+    log.info('sub - token balance: {}, {}', [balance.tokenBalance.toString(), tokenBalanceId.toString()])
   
   balance.save();
   return tokenBalanceId;
@@ -322,6 +323,56 @@ export function createAndAddWETHSummoner(
   molochId: string,
   founder: Address,
   event: WETHPartyStarted,
+): string {
+
+  let memberId = molochId.concat("-member-").concat(founder.toHex());
+  log.info('My MolochId is: {}', [molochId])
+  let member = new Member(memberId);
+  log.info('My memberId is: {}', [memberId])
+  
+
+  member.moloch = molochId;
+  log.info('My moloch is: {}', [molochId])
+  member.createdAt = event.block.timestamp.toString();
+  member.molochAddress = event.params.pty;
+  member.memberAddress = founder;
+  member.shares = BigInt.fromI32(0);
+  member.loot = BigInt.fromI32(0);
+  member.tokenTribute = BigInt.fromI32(0);
+  member.iTB = BigInt.fromI32(0);
+  member.iTW = BigInt.fromI32(0);
+  member.iVal = BigInt.fromI32(0);
+  member.didRagequit = false;
+  member.exists = true;
+  member.proposedToKick = false;
+  member.kicked = false;
+
+  //Set summoner summoner balances for approved tokens to zero
+   let tokens = event.params._approvedTokens;
+   
+   for (let i = 0; i < tokens.length; i++) {
+     let token = tokens[i];
+     log.info('My token is: {}', [token.toHex()])
+     let tokenId = molochId.concat("-token-").concat(token.toHex());
+     createMemberTokenBalance(
+       molochId,
+       founder,
+       tokenId,
+       BigInt.fromI32(0)
+     );
+   }
+  
+  member.save();
+
+  addMembershipBadge(founder);
+
+  return memberId;
+}
+
+export function createAndAddWETHSummoner2(
+  molochId: string,
+  founder: Address,
+  event: WETHPartyStarted2,
 ): string {
 
   let memberId = molochId.concat("-member-").concat(founder.toHex());
@@ -1172,7 +1223,7 @@ export function handleRagequit(event: Ragequit): void {
 
     let balanceTimesBurn = balance.tokenBalance.times(sharesAndLootToBurn);
     let amountToRageQuit = balanceTimesBurn.div(initialTotalSharesAndLoot);
-    log.info("********Amount to RQ {}*********", [amountToRageQuit.toString()]);
+    log.info("********Amount to RQ {} *********", [amountToRageQuit.toString()]);
     let iTB = member.iTB;
     log.info("********Member iTB {}*********", [iTB.toString()]);
 
@@ -1186,9 +1237,9 @@ export function handleRagequit(event: Ragequit): void {
     //add second internal transfer to adjust for idleTokens
         // adjusts for previous iToken redemptions 
         
-    if (moloch.idleToken != WETH.toString())  {
+    if (moloch.version == "2xParty" || moloch.version == "2xParty2")  {
       let iAdj = amountToRageQuit.minus(member.iTB);
-      log.info("******** iAdj{} *********", [iAdj.toString()]);
+      log.info("******** 2x Party iAdj{} *********", [iAdj.toString()]);
         if(iAdj > BigInt.fromI32(0)){
           internalTransfer(
             molochId,
@@ -1200,9 +1251,9 @@ export function handleRagequit(event: Ragequit): void {
         }
      }  
   // Use iTW for adjustments in WETHParty and NOFIParty
-  if (moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
-    let iAdj = amountToRageQuit.minus(member.iTW);
-    log.info("******** iAdj{} *********", [iAdj.toString()]);
+  if (moloch.version == "WETHParty" || moloch.version == "2xNOFIParty" && member.iTW > BigInt.fromI32(0)) {
+    let iAdj = amountToRageQuit.minus(member.iVal);
+    log.info("******** NoFi / WETH iAdj {} *********", [iAdj.toString()]);
       if(iAdj > BigInt.fromI32(0)){
         internalTransfer(
           molochId,
@@ -1214,9 +1265,17 @@ export function handleRagequit(event: Ragequit): void {
       }
     // In WETHParty totalDeposits is used to track peg for earnings 
     if (moloch.version.toString() == "WETHParty" || moloch.version.toString() == "2xNOFIParty") {
+      let depAdj = amountToRageQuit.minus(member.iVal)
       let totalDeposits = moloch.totalDeposits;
-      moloch.totalDeposits = totalDeposits.minus(amountToRageQuit);
-    }
+      if (member.iTW == BigInt.fromI32(0)){
+        moloch.totalDeposits = totalDeposits.minus(amountToRageQuit);
+      } else {
+        moloch.totalDeposits = totalDeposits.minus(amountToRageQuit);
+        let totalDepositsNew = moloch.totalDeposits;
+        moloch.totalDeposits = totalDepositsNew.plus(depAdj)
+
+        }
+      }
     }
   }
 

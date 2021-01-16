@@ -78,10 +78,35 @@ dataSources:
           handler: handleWETHSummoned
       file: MolochSummoner/MolochSummoner.wasm
   - kind: ethereum/contract
+    name: WETHMolochSummoner2
+    network: kovan
+    source:
+      address: "0xE29F5F5116e368161baC47721fC11d9813538f31"
+      abi: WETHFactory2
+      startBlock: 11149112
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Moloch
+      abis:
+        - name: WETHFactory2
+          file: WETHMolochSummoner2/abis/WETHFactory2.json
+        - name: Erc20
+          file: WETHMolochSummoner2/abis/Erc20.json
+        - name: Erc20Bytes32
+          file: WETHMolochSummoner2/abis/Erc20Bytes32.json
+      eventHandlers:
+        - event: PartyStarted(indexed
+            address,address[],address[],address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleWETH2Summoned
+      file: MolochSummoner/MolochSummoner.wasm
+  - kind: ethereum/contract
     name: NOFIMolochSummoner
     network: kovan
     source:
-      address: "0x7836b5DB863Db6731767b3b7b0344661C5c4C732"
+      address: "0xd9153c72a6e1f6F362B13b6891B840e99AD46561"
       abi: NOFIFactory
       startBlock: 11149112
     mapping:
