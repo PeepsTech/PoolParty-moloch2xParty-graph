@@ -108,11 +108,11 @@ dataSources:
       file: ./src/factory-mapping.ts           
   - kind: ethereum/contract
     name: NOFIMolochSummoner
-    network: kovan 
-    #network: mainnet 
+    #network: kovan 
+    network: mainnet 
     source:
-      address: "0xd9153c72a6e1f6F362B13b6891B840e99AD46561" # kovan NOFI party starter
-      #address: "" #mainnet
+      #address: "0xd9153c72a6e1f6F362B13b6891B840e99AD46561" # kovan NOFI party starter
+      address: "0x22D2FC70AbD4000Dd53851307088d20D3aC09830" #mainnet
       abi: NOFIFactory
       startBlock: 11149112
     mapping:
@@ -135,8 +135,8 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: MolochTemplate
-    network: kovan
-    #network: mainnet # change to mainnet for deploy
+    #network: kovan
+    network: mainnet # change to mainnet for deploy
     source:
       abi: V2Moloch
     mapping:
