@@ -1,9 +1,7 @@
 # Moloch V2 Factory Graph for multi summoner DAOs
 
-wip: moloch events.
-
-built by:
-LexDAO 
+improvements by:
+LexDAO & Peeps Democracy & DAOhaus
 
 forked from and thanks to DAOHaus Supergraph built by: 
 Welcome to FlatLand:
